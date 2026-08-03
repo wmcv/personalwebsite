@@ -24,21 +24,25 @@
 
     <main>
       <section class="content archive-content" aria-labelledby="projects-title">
-        <h1 class="page-heading" id="projects-title">projects</h1>
-        <p class="page-subtitle">small systems, product experiments, and ai infrastructure i've been building.</p>
+        <h1 class="sr-only" id="projects-title">Projects</h1>
 
         <div class="project-card-list">
           <article class="project-card">
             <div class="project-media" aria-label="Krave project media placeholder">
-              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+              <!-- Replace this placeholder with a Krave screenshot, GIF, or muted playsinline demo video. -->
               <div class="media-placeholder">
                 <span>Krave</span>
-                <small>image / video coming soon</small>
+                <small>demo image / video coming soon</small>
               </div>
             </div>
             <div class="project-info">
               <div class="project-head">
                 <h2>Krave</h2>
+                <div class="project-actions" aria-label="Krave links">
+                  <!-- TODO: replace with the final public Krave GitHub repository URL. -->
+                  <a class="icon-link" href="https://github.com/wmcv/uweats_private" target="_blank" rel="noopener noreferrer" aria-label="View Krave on GitHub">gh</a>
+                  <a class="icon-link" href="https://kraveapp.ca" target="_blank" rel="noopener noreferrer" aria-label="Open the Krave website">↗</a>
+                </div>
               </div>
               <p>location-based, swipe-driven restaurant discovery with a FastAPI backend, PostgreSQL/PostGIS, H3 indexing, personalized ranking, and an automated geospatial data-ingestion pipeline.</p>
               <p class="project-meta">React / FastAPI / PostgreSQL / PostGIS / H3 / Go</p>
@@ -47,18 +51,18 @@
 
           <article class="project-card">
             <div class="project-media" aria-label="reddify.ca project media placeholder">
-              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+              <!-- Replace this placeholder with a reddify.ca screenshot, GIF, or muted playsinline demo video. -->
               <div class="media-placeholder">
                 <span>reddify.ca</span>
-                <small>image / video coming soon</small>
+                <small>demo image / video coming soon</small>
               </div>
             </div>
             <div class="project-info">
               <div class="project-head">
-                <h2><a class="animated-link" href="https://reddify.ca/" target="_blank" rel="noreferrer">reddify.ca</a></h2>
+                <h2><a class="animated-link" href="https://reddify.ca/" target="_blank" rel="noopener noreferrer">reddify.ca</a></h2>
                 <div class="project-actions" aria-label="reddify.ca links">
-                  <a class="icon-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer" aria-label="GitHub profile for reddify.ca">gh</a>
-                  <a class="icon-link" href="https://reddify.ca/" target="_blank" rel="noreferrer" aria-label="Open reddify.ca">↗</a>
+                  <a class="icon-link" href="https://github.com/wmcv" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile for reddify.ca">gh</a>
+                  <a class="icon-link" href="https://reddify.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open reddify.ca">↗</a>
                 </div>
               </div>
               <p>short-form content platform powered by automation and ai pipelines, reaching 50+ active subscribers and $10k arr.</p>
@@ -67,19 +71,24 @@
           </article>
 
           <article class="project-card">
-            <div class="project-media" aria-label="ai video systems project media placeholder">
-              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+            <div class="project-media" aria-label="NutriScan project media placeholder">
+              <!-- Replace this placeholder with a NutriScan screenshot, GIF, or muted playsinline demo video. -->
               <div class="media-placeholder">
-                <span>ai video systems</span>
-                <small>image / video coming soon</small>
+                <span>NutriScan</span>
+                <small>demo image / video coming soon</small>
               </div>
             </div>
             <div class="project-info">
+              <p class="project-category">nutrition ai</p>
               <div class="project-head">
-                <h2>ai video systems</h2>
+                <h2>NutriScan</h2>
+                <div class="project-actions" aria-label="NutriScan links">
+                  <a class="icon-link" href="https://github.com/wmcv/NutriScan" target="_blank" rel="noopener noreferrer" aria-label="View NutriScan on GitHub">gh</a>
+                  <a class="icon-link" href="https://nutriscan-webapp.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Open the NutriScan website">↗</a>
+                </div>
               </div>
-              <p>prior production engineering work on ai video infrastructure that reached 5m+ weekly views and improved personalization performance by 35%.</p>
-              <p class="project-meta">AWS EC2 / diffusion models / vision-language models / online learning</p>
+              <p>mobile-first food scanner that analyzes barcodes and provides personalized nutrition ratings, dietary compatibility, ingredient alerts, and nutrient warnings.</p>
+              <p class="project-meta">React / TypeScript / Flask / Supabase / AI APIs</p>
             </div>
           </article>
         </div>

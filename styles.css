@@ -239,7 +239,7 @@ a:focus-visible {
 .blog-content,
 .archive-content,
 .article {
-  margin-top: 26px;
+  margin-top: 18px;
 }
 
 .page-heading {
@@ -343,6 +343,12 @@ a:focus-visible {
   text-align: center;
 }
 
+.project-category {
+  margin: 0 0 4px;
+  color: var(--text-soft);
+  font-size: var(--font-xs);
+}
+
 .media-placeholder span {
   color: var(--text-strong);
   font-size: var(--font-lg);
@@ -405,6 +411,10 @@ a:focus-visible {
   color: var(--text);
   font-size: var(--font-sm);
   line-height: 1.5;
+}
+
+.project-info .project-category {
+  margin-top: 0;
 }
 
 .project-info .project-meta {
