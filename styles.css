@@ -314,48 +314,8 @@ a:focus-visible {
   transform: translateY(-2px);
 }
 
-.project-media {
-  position: relative;
-  aspect-ratio: 2 / 1;
-  overflow: hidden;
-  background:
-    linear-gradient(135deg, rgba(31, 41, 55, 0.5), rgba(23, 23, 23, 0.2)),
-    radial-gradient(circle, rgba(214, 211, 209, 0.12) 1px, transparent 1px);
-  background-size: auto, 14px 14px;
-}
-
-.project-media img,
-.project-media video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.media-placeholder {
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 4px;
-  width: 100%;
-  height: 100%;
-  color: var(--text);
-  text-align: center;
-}
-
 .project-category {
   margin: 0 0 4px;
-  color: var(--text-soft);
-  font-size: var(--font-xs);
-}
-
-.media-placeholder span {
-  color: var(--text-strong);
-  font-size: var(--font-lg);
-  font-weight: 600;
-}
-
-.media-placeholder small {
   color: var(--text-soft);
   font-size: var(--font-xs);
 }
@@ -363,7 +323,6 @@ a:focus-visible {
 .project-info {
   padding: 14px;
   background: var(--surface-soft);
-  border-top: 1px solid var(--border);
 }
 
 .project-head {
