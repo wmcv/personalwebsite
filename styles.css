@@ -62,7 +62,7 @@ a {
 }
 
 .article-page {
-  max-width: none;
+  max-width: calc(1000px + (var(--page-pad) * 2));
 }
 
 .article-page .topbar,
@@ -255,51 +255,50 @@ a:focus-visible {
 
 .blog-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 760px) minmax(0, 1fr);
-  gap: 0;
+  grid-template-columns: 180px minmax(0, 740px);
+  gap: 48px;
   align-items: start;
+  max-width: 968px;
+  margin-inline: auto;
 }
 
 .toc {
   position: sticky;
-  grid-column: 1;
-  justify-self: end;
-  width: 216px;
-  top: 100px;
+  width: 180px;
+  top: 90px;
   margin-top: 18px;
-  margin-right: 72px;
   color: var(--text-soft);
-  font-size: 0.875rem;
-  opacity: 0.78;
+  font-size: 0.8125rem;
+  opacity: 0.74;
 }
 
 .blog-layout > .article {
-  grid-column: 2;
   width: 100%;
 }
 
 .toc h3 {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   color: var(--text);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 500;
+  letter-spacing: 0.04em;
 }
 
 .toc nav {
   display: grid;
-  gap: 2px;
+  gap: 8px;
 }
 
 .toc-link {
   position: relative;
   display: block;
-  padding: 3px 0 3px 14px;
+  padding: 0 0 0 13px;
   color: var(--text-soft);
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  line-height: 1.35;
+  line-height: 1.45;
   text-decoration: none;
-  opacity: 0.72;
+  opacity: 0.68;
   transition: color var(--duration) var(--ease), transform var(--duration) var(--ease);
 }
 
@@ -307,9 +306,9 @@ a:focus-visible {
   content: "";
   position: absolute;
   left: 0;
-  top: 0.95em;
-  width: 5px;
-  height: 5px;
+  top: 0.72em;
+  width: 4px;
+  height: 4px;
   border-radius: 999px;
   background: #22c55e;
   opacity: 0;
@@ -339,12 +338,12 @@ a:focus-visible {
 }
 
 .toc-link[data-level="3"] {
-  padding-left: 26px;
-  font-weight: 500;
+  padding-left: 24px;
+  font-weight: 400;
 }
 
 .toc-link[data-level="3"]::before {
-  left: 12px;
+  left: 11px;
 }
 
 .page-heading {
@@ -723,9 +722,18 @@ th {
 }
 
 @media (max-width: 1180px) {
+  .article-page {
+    max-width: calc(100% - (var(--page-pad) * 2));
+  }
+
+  .blog-layout {
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 32px;
+    max-width: 100%;
+  }
+
   .toc {
-    width: 190px;
-    margin-right: 40px;
+    width: 160px;
     font-size: 0.8125rem;
   }
 
