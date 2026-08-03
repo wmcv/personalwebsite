@@ -1,113 +1,207 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projects | William McVicar</title>
-  <meta name="description" content="Selected software and AI projects by William McVicar.">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
-</head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <a class="site-title" href="/">william mcvicar</a>
-      <nav>
-        <a class="animated-link" href="/">about</a>
-        <a class="animated-link is-active" href="/projects/">projects</a>
-        <a class="animated-link" href="/blog/">blog</a>
-      </nav>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects | William McVicar</title>
+    <meta
+      name="description"
+      content="Selected software and AI projects by William McVicar."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="site-title" href="/">william mcvicar</a>
+        <nav>
+          <a class="animated-link" href="/">about</a>
+          <a class="animated-link is-active" href="/projects/">projects</a>
+          <a class="animated-link" href="/blog/">blog</a>
+        </nav>
+      </header>
 
-    <main>
-      <section class="content archive-content" aria-labelledby="projects-title">
-        <h1 class="sr-only" id="projects-title">Projects</h1>
+      <main>
+        <section
+          class="content archive-content"
+          aria-labelledby="projects-title"
+        >
+          <h1 class="sr-only" id="projects-title">Projects</h1>
 
-        <div class="project-card-list">
-          <article class="project-card">
-            <div class="project-media" aria-label="Krave project screenshot">
-              <img
-                src="/projects/krace_project.png"
-                alt="Krave restaurant discovery interface"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="project-info">
-              <div class="project-head">
-                <h2>Krave</h2>
-                <div class="project-actions" aria-label="Krave links">
-                  <!-- TODO: replace with the final public Krave GitHub repository URL. -->
-                  <a class="icon-link" href="https://github.com/wmcv/uweats_private" target="_blank" rel="noopener noreferrer" aria-label="View Krave on GitHub">gh</a>
-                  <a class="icon-link" href="https://kraveapp.ca" target="_blank" rel="noopener noreferrer" aria-label="Open the Krave website">↗</a>
-                </div>
+          <div class="project-card-list">
+            <article class="project-card">
+              <div class="project-media" aria-label="Krave project screenshot">
+                <img
+                  src="/projects/krave_project.png"
+                  alt="Krave restaurant discovery interface"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
-              <p>location-based, swipe-driven restaurant discovery with a FastAPI backend, PostgreSQL/PostGIS, H3 indexing, personalized ranking, and an automated geospatial data-ingestion pipeline.</p>
-              <p class="project-meta">React / FastAPI / PostgreSQL / PostGIS / H3 / Go</p>
-            </div>
-          </article>
-
-          <article class="project-card">
-            <div class="project-media" aria-label="reddify.ca project screenshot">
-              <img
-                src="/projects/reddify_project.png"
-                alt="reddify.ca short-form content platform interface"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="project-info">
-              <div class="project-head">
-                <h2><a class="animated-link" href="https://reddify.ca/" target="_blank" rel="noopener noreferrer">reddify.ca</a></h2>
-                <div class="project-actions" aria-label="reddify.ca links">
-                  <a class="icon-link" href="https://github.com/wmcv" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile for reddify.ca">gh</a>
-                  <a class="icon-link" href="https://reddify.ca/" target="_blank" rel="noopener noreferrer" aria-label="Open reddify.ca">↗</a>
+              <div class="project-info">
+                <div class="project-head">
+                  <h2>Krave</h2>
+                  <div class="project-actions" aria-label="Krave links">
+                    <!-- TODO: replace with the final public Krave GitHub repository URL. -->
+                    <a
+                      class="icon-link"
+                      href="https://github.com/wmcv/uweats_private"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View Krave on GitHub"
+                      >gh</a
+                    >
+                    <a
+                      class="icon-link"
+                      href="https://kraveapp.ca"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open the Krave website"
+                      >↗</a
+                    >
+                  </div>
                 </div>
+                <p>
+                  location-based, swipe-driven restaurant discovery with a
+                  FastAPI backend, PostgreSQL/PostGIS, H3 indexing, personalized
+                  ranking, and an automated geospatial data-ingestion pipeline.
+                </p>
+                <p class="project-meta">
+                  React / FastAPI / PostgreSQL / PostGIS / H3 / Go
+                </p>
               </div>
-              <p>short-form content platform powered by automation and ai pipelines, reaching 50+ active subscribers and $10k arr.</p>
-              <p class="project-meta">Next.js / Python / Stripe / MySQL / NGINX</p>
-            </div>
-          </article>
+            </article>
 
-          <article class="project-card">
-            <div class="project-media" aria-label="NutriScan project screenshot">
-              <img
-                src="/projects/nutriscan_project.png"
-                alt="NutriScan food scanner interface"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="project-info">
-              <p class="project-category">nutrition ai</p>
-              <div class="project-head">
-                <h2>NutriScan</h2>
-                <div class="project-actions" aria-label="NutriScan links">
-                  <a class="icon-link" href="https://github.com/wmcv/NutriScan" target="_blank" rel="noopener noreferrer" aria-label="View NutriScan on GitHub">gh</a>
-                  <a class="icon-link" href="https://nutriscan-webapp.vercel.app" target="_blank" rel="noopener noreferrer" aria-label="Open the NutriScan website">↗</a>
-                </div>
+            <article class="project-card">
+              <div
+                class="project-media"
+                aria-label="reddify.ca project screenshot"
+              >
+                <img
+                  src="/projects/reddify_project.png"
+                  alt="reddify.ca short-form content platform interface"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
-              <p>mobile-first food scanner that analyzes barcodes and provides personalized nutrition ratings, dietary compatibility, ingredient alerts, and nutrient warnings.</p>
-              <p class="project-meta">React / TypeScript / Flask / Supabase / AI APIs</p>
-            </div>
-          </article>
+              <div class="project-info">
+                <div class="project-head">
+                  <h2>
+                    <a
+                      class="animated-link"
+                      href="https://reddify.ca/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      >reddify.ca</a
+                    >
+                  </h2>
+                  <div class="project-actions" aria-label="reddify.ca links">
+                    <a
+                      class="icon-link"
+                      href="https://github.com/wmcv"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="GitHub profile for reddify.ca"
+                      >gh</a
+                    >
+                    <a
+                      class="icon-link"
+                      href="https://reddify.ca/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open reddify.ca"
+                      >↗</a
+                    >
+                  </div>
+                </div>
+                <p>
+                  short-form content platform powered by automation and ai
+                  pipelines, reaching 50+ active subscribers and $10k arr.
+                </p>
+                <p class="project-meta">
+                  Next.js / Python / Stripe / MySQL / NGINX
+                </p>
+              </div>
+            </article>
+
+            <article class="project-card">
+              <div
+                class="project-media"
+                aria-label="NutriScan project screenshot"
+              >
+                <img
+                  src="/projects/nutriscan_project.png"
+                  alt="NutriScan food scanner interface"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+              <div class="project-info">
+                <p class="project-category">nutrition ai</p>
+                <div class="project-head">
+                  <h2>NutriScan</h2>
+                  <div class="project-actions" aria-label="NutriScan links">
+                    <a
+                      class="icon-link"
+                      href="https://github.com/wmcv/NutriScan"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="View NutriScan on GitHub"
+                      >gh</a
+                    >
+                    <a
+                      class="icon-link"
+                      href="https://nutriscan-webapp.vercel.app"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label="Open the NutriScan website"
+                      >↗</a
+                    >
+                  </div>
+                </div>
+                <p>
+                  mobile-first food scanner that analyzes barcodes and provides
+                  personalized nutrition ratings, dietary compatibility,
+                  ingredient alerts, and nutrient warnings.
+                </p>
+                <p class="project-meta">
+                  React / TypeScript / Flask / Supabase / AI APIs
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer id="contact" class="footer">
+        <div class="links">
+          <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+          <a
+            class="animated-link"
+            href="https://www.linkedin.com/in/william-mcvicar-0531a7324/"
+            target="_blank"
+            rel="noreferrer"
+            >linkedin</a
+          >
+          <a
+            class="animated-link"
+            href="https://github.com/wmcv"
+            target="_blank"
+            rel="noreferrer"
+            >github</a
+          >
         </div>
-      </section>
-    </main>
+        <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+      </footer>
+    </div>
 
-    <footer id="contact" class="footer">
-      <div class="links">
-        <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
-        <a class="animated-link" href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
-        <a class="animated-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
-      </div>
-      <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
-    </footer>
-  </div>
-
-  <script src="../script.js"></script>
-</body>
+    <script src="../script.js"></script>
+  </body>
 </html>
