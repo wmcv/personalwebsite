@@ -1,0 +1,598 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Designing a Scalable Restaurant Ingestion Pipeline | William McVicar</title>
+    <meta
+      name="description"
+      content="How Krave uses demand-driven H3 coverage, overnight scheduling, incremental ingestion, and CID-based upserts to grow a production restaurant catalog."
+    />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+
+    <style>
+      .article {
+        width: 100%;
+        max-width: 680px;
+        margin-inline: auto;
+      }
+
+      .article-figure,
+      .article-hero {
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 1.75rem 0 2rem !important;
+        transform: none !important;
+      }
+
+      .article-figure img,
+      .article-hero img {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        object-fit: contain;
+        border-radius: 0.35rem;
+      }
+
+      .article-figure figcaption {
+        max-width: 100%;
+        margin-top: 0.55rem;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        color: #8f96a3;
+      }
+
+      .article code {
+        overflow-wrap: anywhere;
+      }
+
+      @media (max-width: 700px) {
+        .article {
+          max-width: 100%;
+        }
+
+        .article-figure,
+        .article-hero {
+          margin-block: 1.35rem 1.7rem !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="site-title" href="/">william mcvicar</a>
+
+        <nav aria-label="Primary navigation">
+          <a class="animated-link" href="/">about</a>
+          <a class="animated-link" href="/projects/">projects</a>
+          <a class="animated-link is-active" href="/blog/" aria-current="page">blog</a>
+        </nav>
+      </header>
+
+      <main>
+        <article class="content article">
+          <a class="back-link animated-link" href="/blog/">← back to blog</a>
+
+          <header class="article-header">
+            <h1>Designing a Scalable Restaurant Ingestion Pipeline</h1>
+
+            <p>
+              How Krave grows its restaurant catalog through demand-driven
+              coverage, incremental ingestion, and overnight scheduling.
+            </p>
+
+            <div class="article-meta">
+              <time datetime="2026-08-03">August 3, 2026</time>
+              <span>engineering</span>
+            </div>
+          </header>
+
+          <figure class="article-figure article-hero">
+            <img
+              src="restaurant_ingestion_pipeline.png"
+              alt="Architecture diagram showing Krave recording product demand, prioritizing H3 tiles, running overnight Go workers, normalizing restaurant data, performing CID upserts, storing the catalog in PostgreSQL and PostGIS, and serving Personal and Group discovery."
+              loading="eager"
+              decoding="async"
+            />
+            <figcaption>
+              Demand is captured during the user request, while coverage work
+              continues asynchronously through the overnight ingestion pipeline.
+            </figcaption>
+          </figure>
+
+          <section>
+            <h2>The difficult part is not collecting data once</h2>
+
+            <p>
+              A restaurant catalog is never finished. New businesses open,
+              existing restaurants close, photos become stale, review counts
+              change, and metadata drifts over time.
+            </p>
+
+            <p>
+              The first version of an ingestion system can often be simple:
+              choose a city, collect its restaurants, normalize the results, and
+              store them. That approach becomes less useful once the catalog
+              expands across many regions.
+            </p>
+
+            <p>
+              A production system needs to answer a different set of questions:
+              which areas should be refreshed first, how should overlapping
+              results be deduplicated, how can ingestion avoid competing with
+              user traffic, and what should happen when somebody opens Krave in
+              a place the catalog has never covered?
+            </p>
+
+            <p>
+              Krave's ingestion pipeline is designed around those questions. The
+              goal is not to rebuild the full catalog every night. The goal is to
+              grow and refresh the parts of the catalog that matter most.
+            </p>
+          </section>
+
+          <section>
+            <h2>Separating the user request from the ingestion work</h2>
+
+            <p>
+              A user opening Discover should never wait for a background worker
+              to collect an entire area. The stack request must remain fast,
+              even when the requested location has no catalog coverage.
+            </p>
+
+            <p>
+              Krave therefore separates demand capture from execution. The
+              request records an aggregate H3 demand signal and immediately
+              returns the current stack state. A scheduled worker later consumes
+              that demand during the overnight ingestion window.
+            </p>
+
+            <blockquote>
+              The user-facing request records what the system should expand
+              next. It does not perform the expansion itself.
+            </blockquote>
+
+            <p>
+              This boundary keeps Discover responsive and gives the ingestion
+              system room to prioritize, retry, lease work safely, and stop when
+              the operating window closes.
+            </p>
+          </section>
+
+          <section>
+            <h2>Growing coverage from real demand</h2>
+
+            <p>
+              A fixed city list is easy to understand, but it does not adapt to
+              actual usage. One region may have no active users, while another
+              may suddenly receive several requests from people who cannot see
+              any nearby restaurants.
+            </p>
+
+            <p>
+              Krave records demand at the H3 tile level. When a stack request
+              reaches an uncovered area, the surrounding cells receive durable
+              demand records. Multiple distinct users create a stronger signal
+              than repeated refreshes from one person.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="demand_driven_coverage.png"
+                alt="Aggregated H3 coverage map showing catalog-covered cells, demanded but uncovered cells, and a high-priority region selected for overnight expansion."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Aggregated H3 demand guides overnight expansion without exposing
+                individual user locations.
+              </figcaption>
+            </figure>
+
+            <p>
+              The demand signal is normalized across the requested area. A
+              larger search radius may touch hundreds of cells, so one request
+              should not give every cell the full weight of an entire user.
+            </p>
+
+            <p>
+              The result is a system that expands where Krave is actually being
+              used rather than following a permanently fixed geographic plan.
+            </p>
+          </section>
+
+          <section>
+            <h2>Prioritizing the next tile</h2>
+
+            <p>
+              Demand is only one part of scheduling. The worker also considers
+              whether a tile has any catalog coverage, how many distinct users
+              requested it, how old its data is, whether restaurant counts have
+              declined, and whether previous attempts failed.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="tile_priority_scoring.png"
+                alt="Illustrative comparison of three H3 tiles showing how zero coverage, distinct users, normalized demand, request volume, swipe activity, age, result decline, and failures contribute to final priority."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                An uncovered tile requested by two users receives a stronger
+                durable signal than one repeatedly refreshed by a single user.
+              </figcaption>
+            </figure>
+
+            <p>
+              First-time coverage generally outranks routine maintenance of a
+              healthy populated region. At the same time, age and failure
+              signals prevent old or repeatedly unsuccessful work from being
+              ignored forever.
+            </p>
+
+            <p>
+              The scheduler also avoids leasing a large batch in advance. It
+              acquires one tile shortly before execution, completes or fails it,
+              then checks whether another job should begin.
+            </p>
+          </section>
+
+          <section>
+            <h2>What happens when Krave reaches a new area</h2>
+
+            <p>
+              An empty stack can have several meanings. The catalog may have no
+              local restaurants, the user may have already seen everything
+              nearby, or restrictive filters may have removed all eligible
+              candidates.
+            </p>
+
+            <p>
+              Those cases should not produce the same response. Krave classifies
+              the empty state before showing it to the user.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="uncovered_area_lifecycle.png"
+                alt="Flow diagram showing a GPS stack request in a new area, an uncovered response, durable H3 demand recording, the early-area user state, overnight coverage, and future local restaurant availability."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Uncovered, seen-all, and filtered-out states remain distinct so
+                the app can respond accurately.
+              </figcaption>
+            </figure>
+
+            <p>
+              When the nearby catalog count is zero, the user sees an early-area
+              state explaining that Krave has queued the region for best-effort
+              overnight coverage. The request does not promise that every area
+              will be ready the following morning, but it gives the system a
+              durable signal to act on.
+            </p>
+
+            <p>
+              If restaurants already exist but the user has recently swiped all
+              of them, the app instead explains that the neighborhood has been
+              explored. If filters removed every candidate, it suggests adjusting
+              those filters rather than implying that the entire region is
+              unsupported.
+            </p>
+          </section>
+
+          <section>
+            <h2>Running ingestion when production traffic is quiet</h2>
+
+            <p>
+              Background ingestion can consume CPU, memory, network capacity,
+              database connections, and browser-worker time. Running large jobs
+              during peak usage would make the product less predictable.
+            </p>
+
+            <p>
+              Krave opens its ingestion window from 2:00 AM to 7:00 AM in the
+              <code>America/Toronto</code> timezone. Using an IANA timezone keeps
+              the policy correct across daylight-saving changes.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="overnight_scrape_window.png"
+                alt="Timeline showing Krave's 2:00 AM to 7:00 AM America Toronto ingestion window, several tile jobs, and a job started before 7:00 AM continuing past the cutoff while no new jobs begin afterward."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Running jobs finish normally, but no new tile begins at or after
+                the cutoff.
+              </figcaption>
+            </figure>
+
+            <p>
+              The cutoff applies to new starts, not active work. A tile leased at
+              6:58 AM may finish after 7:00 AM. Once it completes, the worker
+              checks the current time again and exits instead of acquiring
+              another tile.
+            </p>
+
+            <p>
+              If the queue is empty earlier, the worker exits immediately. If
+              demand remains after the window closes, that work stays eligible
+              for the next overnight cycle.
+            </p>
+          </section>
+
+          <section>
+            <h2>Incremental ingestion instead of full replacement</h2>
+
+            <p>
+              Adjacent geographic tiles can return the same restaurant. A
+              complete replacement strategy would repeatedly insert duplicates
+              or require expensive cleanup after each run.
+            </p>
+
+            <p>
+              Krave normalizes each upstream result, validates required fields,
+              and performs a lookup using a stable business identifier. Existing
+              records are enriched or updated; new records are inserted.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="incremental_ingestion_flow.png"
+                alt="Flow diagram showing upstream restaurant validation, normalization, CID lookup, update or insert paths, rejection of invalid records, and assignment of geography and H3 before committing to PostGIS."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Stable CID-based upserts allow overlapping geographic jobs to
+                converge on one catalog record.
+              </figcaption>
+            </figure>
+
+            <p>
+              The normalization stage handles metadata, tags, photos, reviews,
+              and location fields before the record reaches the database. Invalid
+              results are rejected safely rather than partially inserted.
+            </p>
+
+            <p>
+              Once stored, each restaurant receives both a PostGIS geography and
+              an H3 index. PostGIS remains the source of truth for exact distance
+              checks, while H3 provides the spatial structure used throughout
+              coverage and scheduling.
+            </p>
+          </section>
+
+          <section>
+            <h2>Measuring catalog quality</h2>
+
+            <p>
+              Total row count is only one measure of an ingestion pipeline. A
+              useful catalog also needs valid coordinates, spatial indexes,
+              photos, reviews, and enough tracked regions to support future
+              maintenance.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="ingestion_results_summary.png"
+                alt="Summary showing a catalog of 37,197 restaurants, full geolocation and H3 coverage, high photo and review coverage, and the number of tracked H3 tiles."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Catalog coverage across geolocation, H3 indexing, photos,
+                reviews, and tracked tiles.
+              </figcaption>
+            </figure>
+
+            <p>
+              Geolocation and H3 coverage are especially important because both
+              discovery and maintenance depend on them. Missing coordinates
+              prevent exact radius queries, while missing H3 indexes weaken the
+              system's ability to organize geographic work.
+            </p>
+
+            <p>
+              Photo and review coverage are not required for a valid restaurant
+              row, but they strongly affect the quality of the user-facing
+              experience. Tracking those ratios makes missing enrichment visible
+              instead of treating every database row as equally complete.
+            </p>
+          </section>
+
+          <section>
+            <h2>Representing geographic growth</h2>
+
+            <p>
+              The catalog does not grow uniformly. Dense commercial regions may
+              occupy large connected groups of H3 cells, while smaller towns and
+              suburban clusters appear as isolated pockets.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="restaurant_catalog_growth.png"
+                alt="Representative occupied H3 region using real catalog density, with catalog size and occupied H3 cell count shown alongside the spatial footprint."
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                A representative occupied H3 region using the catalog's real
+                spatial density.
+              </figcaption>
+            </figure>
+
+            <p>
+              The important property is locality. Adding restaurants in one
+              region should not force unrelated users elsewhere to search through
+              them. Spatial indexing keeps ingestion, maintenance, and discovery
+              aligned around the parts of the catalog that are geographically
+              relevant.
+            </p>
+          </section>
+
+          <section>
+            <h2>Failure recovery and duplicate avoidance</h2>
+
+            <p>
+              Scheduled ingestion needs to expect failures. Browser workers can
+              exit, upstream data can be incomplete, network calls can time out,
+              and individual tiles can return no useful results.
+            </p>
+
+            <p>
+              Each tile has lease state, scrape history, failure counts, and
+              retry timing. Workers use database locking with
+              <code>FOR UPDATE SKIP LOCKED</code> so concurrent processes do not
+              intentionally select the same tile.
+            </p>
+
+            <p>
+              On success, the worker updates result counts, freshness, and log
+              state before releasing the lease. On failure, it records the
+              error, rolls back safely, and applies retry backoff rather than
+              immediately selecting the same work again.
+            </p>
+
+            <p>
+              Geographic overlap is handled separately. Two nearby tiles may
+              legitimately discover the same business, but the CID upsert keeps
+              the database from creating duplicate restaurant rows.
+            </p>
+          </section>
+
+          <section>
+            <h2>Trade-offs</h2>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>decision</th>
+                    <th>benefit</th>
+                    <th>trade-off</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>demand-driven expansion</td>
+                    <td>coverage grows where users actually need it</td>
+                    <td>new areas may wait for an overnight cycle</td>
+                  </tr>
+
+                  <tr>
+                    <td>distinct-user weighting</td>
+                    <td>real demand outweighs repeated refreshes</td>
+                    <td>requires additional durable demand state</td>
+                  </tr>
+
+                  <tr>
+                    <td>one-tile leasing</td>
+                    <td>avoids leaving unstarted work locked</td>
+                    <td>reduces scheduler throughput at low concurrency</td>
+                  </tr>
+
+                  <tr>
+                    <td>overnight execution</td>
+                    <td>limits competition with user-facing traffic</td>
+                    <td>freshness is intentionally delayed</td>
+                  </tr>
+
+                  <tr>
+                    <td>CID-based upserts</td>
+                    <td>overlapping jobs converge on one record</td>
+                    <td>depends on stable upstream identifiers</td>
+                  </tr>
+
+                  <tr>
+                    <td>H3 plus PostGIS</td>
+                    <td>structured coverage with exact spatial queries</td>
+                    <td>two geographic representations must stay consistent</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section>
+            <h2>Why this architecture scales better than a city list</h2>
+
+            <p>
+              A manually maintained list of cities works while the catalog is
+              small and the expansion plan is predictable. It becomes less
+              useful once real demand arrives from unexpected regions.
+            </p>
+
+            <p>
+              Krave's pipeline turns product usage into an operational signal.
+              Users reveal where coverage is missing, the scheduler compares
+              that demand against freshness and failure state, and overnight
+              workers expand the catalog without blocking Discover.
+            </p>
+
+            <p>
+              Incremental upserts keep overlapping work safe, H3 organizes the
+              geographic queue, and PostGIS keeps the resulting restaurant
+              search accurate.
+            </p>
+
+            <blockquote>
+              The pipeline does not try to ingest everything every night. It
+              continuously decides what is most valuable to ingest next.
+            </blockquote>
+          </section>
+        </article>
+      </main>
+
+      <footer class="footer">
+        <div class="links">
+          <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+
+          <a
+            class="animated-link"
+            href="https://www.linkedin.com/in/william-mcvicar-0531a7324/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            linkedin
+          </a>
+
+          <a
+            class="animated-link"
+            href="https://github.com/wmcv"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github
+          </a>
+        </div>
+
+        <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+      </footer>
+    </div>
+
+    <script src="../../script.js"></script>
+  </body>
+</html>

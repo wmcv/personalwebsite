@@ -1,53 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog | William McVicar</title>
-  <meta name="description" content="Notes from William McVicar on software, systems, and things he's been building.">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../styles.css">
-</head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <a class="site-title" href="/">william mcvicar</a>
-      <nav>
-        <a class="animated-link" href="/">about</a>
-        <a class="animated-link" href="/projects/">projects</a>
-        <a class="animated-link is-active" href="/blog/">blog</a>
-      </nav>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog | William McVicar</title>
+    <meta
+      name="description"
+      content="Notes from William McVicar on software, systems, and things he's been building."
+    />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="site-title" href="/">william mcvicar</a>
+        <nav>
+          <a class="animated-link" href="/">about</a>
+          <a class="animated-link" href="/projects/">projects</a>
+          <a class="animated-link is-active" href="/blog/">blog</a>
+        </nav>
+      </header>
 
-    <main>
-      <section class="content blog-content" aria-labelledby="blog-title">
-        <h1 class="sr-only" id="blog-title">Blog</h1>
+      <main>
+        <section class="content blog-content" aria-labelledby="blog-title">
+          <h1 class="sr-only" id="blog-title">Blog</h1>
 
-        <ul class="post-list" aria-label="blog posts">
-          <li class="post-row">
-            <div>
-              <a class="post-title animated-link" href="/blog/how-h3-spatial-indexing-works/">How H3 Spatial Indexing Works</a>
-              <p class="post-summary">a practical explanation of hierarchical hexagonal indexing and how i use it for location-based restaurant discovery.</p>
-            </div>
-            <time class="post-date">Coming soon</time>
-          </li>
-        </ul>
-      </section>
-    </main>
+          <ul class="post-list" aria-label="blog posts">
+            <li class="post-row">
+              <div>
+                <a
+                  class="post-title animated-link"
+                  href="/blog/how-h3-spatial-indexing-works/"
+                  >How H3 Spatial Indexing Works</a
+                >
+                <p class="post-summary">
+                  a practical explanation of hierarchical hexagonal indexing and
+                  how i use it for location-based restaurant discovery.
+                </p>
+              </div>
+              <time class="post-date">Coming soon</time>
+            </li>
+            <li class="post-row">
+              <div>
+                <a
+                  class="post-title animated-link"
+                  href="/blog/designing-a-scalable-restaurant-ingestion-pipeline/"
+                  >Designing a Scalable Restaurant Ingestion Pipeline</a
+                >
+                <p class="post-summary">
+                  how Krave uses demand-driven H3 coverage, overnight
+                  scheduling, incremental ingestion, and CID-based upserts to
+                  grow a production restaurant catalog.
+                </p>
+              </div>
+              <time class="post-date" datetime="2026-08-03">August 3, 2026</time>
+            </li>
+          </ul>
+        </section>
+      </main>
 
-    <footer id="contact" class="footer">
-      <div class="links">
-        <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
-        <a class="animated-link" href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
-        <a class="animated-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
-      </div>
-      <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
-    </footer>
-  </div>
+      <footer id="contact" class="footer">
+        <div class="links">
+          <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+          <a
+            class="animated-link"
+            href="https://www.linkedin.com/in/william-mcvicar-0531a7324/"
+            target="_blank"
+            rel="noreferrer"
+            >linkedin</a
+          >
+          <a
+            class="animated-link"
+            href="https://github.com/wmcv"
+            target="_blank"
+            rel="noreferrer"
+            >github</a
+          >
+        </div>
+        <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+      </footer>
+    </div>
 
-  <script src="../script.js"></script>
-</body>
+    <script src="../script.js"></script>
+  </body>
 </html>
