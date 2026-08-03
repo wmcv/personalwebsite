@@ -1,119 +1,537 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>How H3 Spatial Indexing Works | William McVicar</title>
-  <meta name="description" content="A practical explanation of hierarchical hexagonal indexing and how William McVicar uses it for location-based restaurant discovery.">
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../../styles.css">
-</head>
-<body>
-  <div class="page">
-    <header class="topbar">
-      <a class="site-title" href="/">william mcvicar</a>
-      <nav>
-        <a class="animated-link" href="/">about</a>
-        <a class="animated-link" href="/projects/">projects</a>
-        <a class="animated-link is-active" href="/blog/">blog</a>
-      </nav>
-    </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <main>
-      <article class="content article">
-        <a class="back-link animated-link" href="/blog/">← back to blog</a>
-        <header class="article-header">
-          <h1>How H3 Spatial Indexing Works</h1>
-          <p>A practical explanation of hierarchical hexagonal indexing and how I use it for location-based restaurant discovery.</p>
-          <div class="article-meta">
-            <span>Coming soon</span>
-            <span>draft</span>
-          </div>
-        </header>
+    <title>How H3 Spatial Indexing Works | William McVicar</title>
+    <meta
+      name="description"
+      content="How Krave combines H3 spatial indexing with PostGIS to efficiently find and rank nearby restaurants."
+    />
 
-        <p class="notice">This article is currently being written.</p>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+  </head>
 
-        <section>
-          <h2>Why location search needs an index</h2>
-          <p>Location search gets expensive when every request needs to compare a user coordinate against a large restaurant catalog. The article will explain why an index lets the backend narrow the search before ranking results.</p>
-        </section>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <a class="site-title" href="/">william mcvicar</a>
 
-        <section>
-          <h2>From coordinates to H3 cells</h2>
-          <p>H3 maps latitude and longitude into hexagonal cells. In Krave, those cells are used as a practical bridge between raw coordinates and nearby restaurant retrieval.</p>
-          <figure class="article-figure">
-            <div class="figure-placeholder">future H3 cell diagram</div>
-            <figcaption>placeholder for a diagram showing coordinates mapped into H3 cells.</figcaption>
+        <nav aria-label="Primary navigation">
+          <a class="animated-link" href="/">about</a>
+          <a class="animated-link" href="/projects/">projects</a>
+          <a class="animated-link is-active" href="/blog/" aria-current="page"
+            >blog</a
+          >
+        </nav>
+      </header>
+
+      <main>
+        <article class="content article">
+          <a class="back-link animated-link" href="/blog/">← back to blog</a>
+
+          <header class="article-header">
+            <h1>How H3 Spatial Indexing Works</h1>
+
+            <p>
+              How Krave combines hierarchical hexagonal indexing with PostGIS to
+              efficiently find nearby restaurants.
+            </p>
+
+            <div class="article-meta">
+              <time datetime="2026-08-03">August 3, 2026</time>
+              <span>engineering</span>
+            </div>
+          </header>
+
+          <figure class="article-figure article-hero">
+            <img
+              src="hero_image(1).png"
+              alt="Diagram showing Krave converting a user's GPS location into an H3 cell, loading neighbouring cells, retrieving restaurants, ranking them, and producing a swipe stack."
+              width="1536"
+              height="1024"
+              loading="eager"
+              decoding="async"
+            />
+            <figcaption>
+              From a raw GPS coordinate to a personalized restaurant stack.
+            </figcaption>
           </figure>
-        </section>
 
-        <section>
-          <h2>Resolution and hierarchy</h2>
-          <p>Different H3 resolutions trade precision for coverage. The full post will describe how cell resolution affects restaurant density, query cost, and result quality.</p>
-          <pre><code>const resolution = 9;
-const originCell = h3.latLngToCell(lat, lng, resolution);</code></pre>
-        </section>
+          <section>
+            <h2>The problem started with a simple query</h2>
 
-        <section>
-          <h2>Neighbourhood searches</h2>
-          <p>Neighbourhood queries expand from a user cell into surrounding rings, then filter and rank restaurants by distance.</p>
-          <ul>
-            <li>expand nearby H3 rings</li>
-            <li>query candidate restaurants</li>
-            <li>remove previously swiped restaurants</li>
-            <li>rank by distance and future personalization signals</li>
-          </ul>
-        </section>
+            <p>
+              Krave is a swipe-driven restaurant discovery app. When someone
+              opens it, the backend needs to answer a basic question:
+              <em>which restaurants are actually close enough to show?</em>
+            </p>
 
-        <section>
-          <h2>How Krave uses H3</h2>
-          <p>Krave uses H3 to keep the stack-generation path fast while a background ingestion system grows the restaurant catalog over time.</p>
-          <blockquote>the goal is not just nearby search. it is nearby search that stays fast as the catalog grows.</blockquote>
-        </section>
+            <p>
+              The simplest solution is to compare the user's coordinates against
+              every restaurant in the database, calculate every distance,
+              discard anything outside the search radius, and then rank what
+              remains.
+            </p>
 
-        <section>
-          <h2>Trade-offs</h2>
-          <p>The final article will cover precision, sparse areas, boundary cases, and when direct geospatial queries are still the better tool.</p>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>choice</th>
-                  <th>benefit</th>
-                  <th>trade-off</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>smaller cells</td>
-                  <td>more precision</td>
-                  <td>more rings to search</td>
-                </tr>
-                <tr>
-                  <td>larger cells</td>
-                  <td>simpler coverage</td>
-                  <td>less local detail</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </article>
-    </main>
+            <p>
+              That works for a small catalog. It becomes less attractive as the
+              database expands across more cities. Most restaurants are
+              obviously too far away, yet the backend still spends time
+              considering them.
+            </p>
 
-    <footer id="contact" class="footer">
-      <div class="links">
-        <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
-        <a class="animated-link" href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
-        <a class="animated-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
-      </div>
-      <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
-    </footer>
-  </div>
+            <p>
+              I wanted the system to eliminate most of those impossible
+              candidates before running precise geographic calculations. H3
+              became the first stage of that filtering process.
+            </p>
+          </section>
 
-  <script src="../../script.js"></script>
-</body>
+          <section>
+            <h2>What H3 actually does</h2>
+
+            <p>
+              H3 is a hierarchical spatial indexing system that divides the
+              Earth into cells. Most of those cells are hexagonal. A latitude
+              and longitude can be converted into a compact H3 index identifying
+              the cell that contains that point.
+            </p>
+
+            <p>
+              Instead of treating each restaurant as an unrelated coordinate,
+              Krave can group restaurants by their H3 cells. A user's location
+              is converted into a cell using the same resolution, and nearby
+              cells can then be selected as an initial search area.
+            </p>
+
+            <pre><code>import h3
+
+resolution = 9
+
+origin_cell = h3.latlng_to_cell(
+    user_latitude,
+    user_longitude,
+    resolution,
+)</code></pre>
+
+            <p>
+              The returned value is not a distance and it is not a replacement
+              for PostGIS. It is an index that gives the backend an efficient
+              way to organize and retrieve geographically related records.
+            </p>
+          </section>
+
+          <section>
+            <h2>Why use hexagons?</h2>
+
+            <p>
+              Square grids have a useful simplicity, but their neighbours are
+              not all equally far from the centre. An edge-sharing neighbour is
+              one unit away, while a diagonally adjacent square is approximately
+              <span aria-label="the square root of two">√2</span> units away.
+            </p>
+
+            <p>
+              A hexagonal cell has six edge-sharing neighbours, and each
+              adjacent step is the same distance in the grid. That makes outward
+              expansion more consistent and reduces the directional bias found
+              in square grids.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="hex_vs_square_neighbors(3).png"
+                alt="Comparison of a square grid, where diagonal neighbours are farther away, and a hexagonal grid, where all six adjacent neighbours have a uniform grid distance."
+                width="1600"
+                height="960"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Square grids mix edge and diagonal distances. Hexagonal grids
+                provide six uniform edge-sharing neighbours.
+              </figcaption>
+            </figure>
+
+            <p>
+              This does not mean a hexagon perfectly represents a circular
+              search radius. It does mean that cell-based neighbourhood
+              operations behave predictably, which is useful when selecting an
+              initial set of nearby candidates.
+            </p>
+          </section>
+
+          <section>
+            <h2>Resolution controls the level of detail</h2>
+
+            <p>
+              H3 supports multiple resolutions. Lower resolutions divide the
+              world into larger cells, while higher resolutions produce smaller
+              and more precise cells.
+            </p>
+
+            <p>
+              Krave currently indexes restaurants at resolution 9. That provides
+              a useful balance: the cells are small enough to narrow local
+              restaurant searches, but large enough that the system does not
+              need to manage an excessive number of cells for ordinary search
+              radii.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="h3_resolution_hierarchy(1).png"
+                alt="Diagram showing H3 cells across resolutions 7, 8, and 9, with a highlighted child cell linked to its logical parent at the coarser resolution."
+                width="1600"
+                height="960"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Each H3 index has a logical parent at a coarser resolution,
+                allowing locations to be represented at different levels of
+                detail.
+              </figcaption>
+            </figure>
+
+            <p>
+              The hierarchy is logical rather than a promise that every child
+              boundary fits perfectly inside the visible geometry of its parent.
+              What matters for indexing is that each finer-resolution cell can
+              be associated with a coarser parent.
+            </p>
+
+            <p>
+              Choosing a resolution is an engineering trade-off. Larger cells
+              reduce the number of indexes required to cover an area, but they
+              admit more distant candidates. Smaller cells improve local
+              precision, but a larger search may need more cells.
+            </p>
+          </section>
+
+          <section>
+            <h2>Expanding outward with neighbour rings</h2>
+
+            <p>
+              Once Krave knows the user's origin cell, it can expand outward
+              using
+              <code>grid_disk</code>. The function returns the centre cell and
+              all cells within a chosen number of grid steps.
+            </p>
+
+            <pre><code>search_steps = 3
+
+candidate_cells = h3.grid_disk(
+    origin_cell,
+    search_steps,
+)</code></pre>
+
+            <figure class="article-figure">
+              <img
+                src="h3_neighbor_rings(3).png"
+                alt="Hexagonal H3 grid with a centre cell and three coloured rings representing grid distances k equals 1, k equals 2, and k equals 3."
+                width="1536"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                <code>grid_disk(center, k)</code> expands outward in consistent
+                cell steps from the user's origin cell.
+              </figcaption>
+            </figure>
+
+            <p>
+              The value of <code>k</code> is a grid distance, not a direct
+              kilometre measurement. The physical coverage of a ring depends on
+              the selected H3 resolution and location.
+            </p>
+
+            <p>
+              Krave can choose enough neighbouring cells to cover the intended
+              search area, retrieve restaurants assigned to those cells, and
+              then perform an exact radius check afterward.
+            </p>
+          </section>
+
+          <section>
+            <h2>H3 narrows the search; PostGIS verifies it</h2>
+
+            <p>
+              H3 is not used as the final source of geographic truth. Hexagonal
+              cells approximate an area, so some restaurants inside the selected
+              cells may still fall outside the user's exact circular radius.
+            </p>
+
+            <p>Krave therefore uses a two-stage query:</p>
+
+            <ol>
+              <li>
+                H3 selects restaurants belonging to the user's cell and nearby
+                candidate cells.
+              </li>
+              <li>
+                PostGIS performs the precise distance check against the user's
+                coordinates.
+              </li>
+            </ol>
+
+            <figure class="article-figure">
+              <img
+                src="candidate_filtering_comparison(2).png"
+                alt="Krave candidate-filtering example showing 7,197 restaurants reduced to 976 H3 candidates and then to 828 restaurants inside an exact five-kilometre radius."
+                width="1536"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                A real Krave query near downtown Toronto: H3 reduces the initial
+                catalog before PostGIS applies the exact five-kilometre filter.
+              </figcaption>
+            </figure>
+
+            <p>
+              In this example, the database contains 7,197 restaurants. The H3
+              stage reduces that to 976 candidates. PostGIS then confirms that
+              828 are actually inside the requested five-kilometre radius.
+            </p>
+
+            <p>
+              The important result is not that H3 returns the final answer. It
+              is that the exact geographic operation no longer needs to consider
+              the entire restaurant catalog.
+            </p>
+
+            <pre><code>SELECT *
+FROM restaurants
+WHERE h3_cell = ANY(:candidate_cells)
+  AND ST_DWithin(
+    location,
+    ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography,
+    :radius_metres
+  );</code></pre>
+          </section>
+
+          <section>
+            <h2>What the restaurant data looks like in practice</h2>
+
+            <p>
+              Spatial indexing becomes easier to understand when the cells are
+              plotted with real restaurant coordinates.
+            </p>
+
+            <p>
+              The Toronto dataset below contains 1,034 restaurants in the
+              plotted downtown region, spread across 242 occupied resolution-9
+              cells. Dense commercial corridors create visible chains and
+              clusters of restaurant points.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="h3_restaurants_toronto(3).png"
+                alt="Plot of 1,034 downtown Toronto restaurants grouped into 242 occupied H3 resolution-9 cells."
+                width="1536"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Downtown Toronto restaurants grouped into their occupied
+                resolution-9 H3 cells.
+              </figcaption>
+            </figure>
+
+            <p>
+              Kitchener-Waterloo is much sparser in the current dataset. Its 262
+              plotted restaurants occupy 78 resolution-9 cells, with clusters
+              around denser commercial areas and individual cells farther away.
+            </p>
+
+            <figure class="article-figure">
+              <img
+                src="h3_restaurants_waterloo(2).png"
+                alt="Plot of 262 Kitchener-Waterloo restaurants grouped into 78 occupied H3 resolution-9 cells."
+                width="1536"
+                height="1024"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                Kitchener-Waterloo has a smaller and more dispersed set of
+                occupied cells than downtown Toronto.
+              </figcaption>
+            </figure>
+
+            <p>
+              The same query structure works in both regions. H3 does not
+              require a different indexing strategy for each city. Dense regions
+              naturally contain more occupied cells and candidates, while sparse
+              regions contain fewer.
+            </p>
+          </section>
+
+          <section>
+            <h2>Where ranking fits into the pipeline</h2>
+
+            <p>
+              Finding nearby restaurants only produces a candidate set. It does
+              not determine which restaurant should appear first.
+            </p>
+
+            <p>
+              After the geographic stage, Krave removes restaurants that should
+              not appear in the current stack, including recently swiped
+              entries. The remaining candidates can then be ranked using
+              distance, restaurant quality signals, and the user's learned
+              preferences.
+            </p>
+
+            <p>The request flow is therefore:</p>
+
+            <ol>
+              <li>receive the user's current coordinates;</li>
+              <li>convert the coordinates into a resolution-9 H3 cell;</li>
+              <li>load neighbouring H3 cells;</li>
+              <li>retrieve restaurants indexed into those cells;</li>
+              <li>apply the exact PostGIS radius filter;</li>
+              <li>remove ineligible or recently viewed restaurants;</li>
+              <li>rank the remaining candidates;</li>
+              <li>serve the result as a swipe stack.</li>
+            </ol>
+
+            <blockquote>
+              H3 answers where the backend should look. PostGIS confirms what is
+              truly nearby. Ranking decides what the user should see first.
+            </blockquote>
+          </section>
+
+          <section>
+            <h2>Trade-offs</h2>
+
+            <p>
+              H3 improves the structure of Krave's location search, but it does
+              not remove every geospatial trade-off.
+            </p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>decision</th>
+                    <th>benefit</th>
+                    <th>trade-off</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td>higher resolution</td>
+                    <td>more precise candidate grouping</td>
+                    <td>more cells needed for wider searches</td>
+                  </tr>
+
+                  <tr>
+                    <td>lower resolution</td>
+                    <td>fewer cells cover a large area</td>
+                    <td>more false-positive candidates</td>
+                  </tr>
+
+                  <tr>
+                    <td>larger neighbour disk</td>
+                    <td>better coverage in sparse regions</td>
+                    <td>more restaurants reach the exact filter</td>
+                  </tr>
+
+                  <tr>
+                    <td>H3 plus PostGIS</td>
+                    <td>fast candidate selection with exact distances</td>
+                    <td>two spatial representations must stay consistent</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p>
+              Search strategy may also need to adapt in sparse areas. If the
+              first set of neighbouring cells does not produce enough
+              restaurants, the backend can expand farther outward or increase
+              the user's search radius.
+            </p>
+          </section>
+
+          <section>
+            <h2>Why this matters as Krave grows</h2>
+
+            <p>
+              A full-table distance calculation may still appear fast with a
+              small dataset. The reason to introduce spatial indexing is not
+              only today's query time. It is to avoid making the amount of
+              unnecessary work grow directly with the complete catalog.
+            </p>
+
+            <p>
+              As Krave adds more cities, most newly added restaurants should
+              have no effect on a user's local search. A restaurant in Halifax
+              should not become a candidate for someone opening the app in
+              Toronto.
+            </p>
+
+            <p>
+              H3 gives the database a practical way to preserve that locality.
+              PostGIS keeps the final answer geographically accurate, and the
+              recommendation model receives a smaller, more relevant set to
+              rank.
+            </p>
+
+            <p>
+              Spatial indexing is mostly invisible to the person using the app,
+              but it is part of what allows a location-based product to remain
+              responsive as its data grows.
+            </p>
+          </section>
+        </article>
+      </main>
+
+      <footer class="footer">
+        <div class="links">
+          <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">
+            email
+          </a>
+
+          <a
+            class="animated-link"
+            href="https://www.linkedin.com/in/william-mcvicar-0531a7324/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            linkedin
+          </a>
+
+          <a
+            class="animated-link"
+            href="https://github.com/wmcv"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github
+          </a>
+        </div>
+
+        <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+      </footer>
+    </div>
+
+    <script src="../../script.js"></script>
+  </body>
 </html>
