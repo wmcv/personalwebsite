@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How H3 Spatial Indexing Works | William McVicar</title>
+  <meta name="description" content="A practical explanation of hierarchical hexagonal indexing and how William McVicar uses it for location-based restaurant discovery.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="site-title" href="/">william mcvicar</a>
+      <nav>
+        <a class="animated-link" href="/">about</a>
+        <a class="animated-link" href="/projects/">projects</a>
+        <a class="animated-link is-active" href="/blog/">blog</a>
+      </nav>
+    </header>
+
+    <main>
+      <article class="content article">
+        <a class="back-link animated-link" href="/blog/">← back to blog</a>
+        <header class="article-header">
+          <h1>How H3 Spatial Indexing Works</h1>
+          <p>A practical explanation of hierarchical hexagonal indexing and how I use it for location-based restaurant discovery.</p>
+          <div class="article-meta">
+            <span>Coming soon</span>
+            <span>draft</span>
+          </div>
+        </header>
+
+        <p class="notice">This article is currently being written.</p>
+
+        <section>
+          <h2>Why location search needs an index</h2>
+          <p>Location search gets expensive when every request needs to compare a user coordinate against a large restaurant catalog. The article will explain why an index lets the backend narrow the search before ranking results.</p>
+        </section>
+
+        <section>
+          <h2>From coordinates to H3 cells</h2>
+          <p>H3 maps latitude and longitude into hexagonal cells. In Krave, those cells are used as a practical bridge between raw coordinates and nearby restaurant retrieval.</p>
+          <figure class="article-figure">
+            <div class="figure-placeholder">future H3 cell diagram</div>
+            <figcaption>placeholder for a diagram showing coordinates mapped into H3 cells.</figcaption>
+          </figure>
+        </section>
+
+        <section>
+          <h2>Resolution and hierarchy</h2>
+          <p>Different H3 resolutions trade precision for coverage. The full post will describe how cell resolution affects restaurant density, query cost, and result quality.</p>
+          <pre><code>const resolution = 9;
+const originCell = h3.latLngToCell(lat, lng, resolution);</code></pre>
+        </section>
+
+        <section>
+          <h2>Neighbourhood searches</h2>
+          <p>Neighbourhood queries expand from a user cell into surrounding rings, then filter and rank restaurants by distance.</p>
+          <ul>
+            <li>expand nearby H3 rings</li>
+            <li>query candidate restaurants</li>
+            <li>remove previously swiped restaurants</li>
+            <li>rank by distance and future personalization signals</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>How Krave uses H3</h2>
+          <p>Krave uses H3 to keep the stack-generation path fast while a background ingestion system grows the restaurant catalog over time.</p>
+          <blockquote>the goal is not just nearby search. it is nearby search that stays fast as the catalog grows.</blockquote>
+        </section>
+
+        <section>
+          <h2>Trade-offs</h2>
+          <p>The final article will cover precision, sparse areas, boundary cases, and when direct geospatial queries are still the better tool.</p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>choice</th>
+                  <th>benefit</th>
+                  <th>trade-off</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>smaller cells</td>
+                  <td>more precision</td>
+                  <td>more rings to search</td>
+                </tr>
+                <tr>
+                  <td>larger cells</td>
+                  <td>simpler coverage</td>
+                  <td>less local detail</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <footer id="contact" class="footer">
+      <div class="links">
+        <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+        <a class="animated-link" href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
+        <a class="animated-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
+      </div>
+      <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+    </footer>
+  </div>
+
+  <script src="../../script.js"></script>
+</body>
+</html>

@@ -8,7 +8,7 @@
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -16,44 +16,71 @@
     <header class="topbar">
       <a class="site-title" href="/">william mcvicar</a>
       <nav>
-        <a href="/">about</a>
-        <a class="is-active" href="/projects">projects</a>
-        <a href="/blog">blog</a>
-        <a href="#contact">contact</a>
+        <a class="animated-link" href="/">about</a>
+        <a class="animated-link is-active" href="/projects/">projects</a>
+        <a class="animated-link" href="/blog/">blog</a>
       </nav>
     </header>
 
     <main>
-      <section class="content archive-content">
-        <h1 class="page-heading">projects</h1>
+      <section class="content archive-content" aria-labelledby="projects-title">
+        <h1 class="page-heading" id="projects-title">projects</h1>
         <p class="page-subtitle">small systems, product experiments, and ai infrastructure i've been building.</p>
 
-        <div class="archive-list">
-          <article class="archive-entry">
-            <div class="archive-head">
-              <h2>Krave</h2>
-              <span>restaurant discovery</span>
+        <div class="project-card-list">
+          <article class="project-card">
+            <div class="project-media" aria-label="Krave project media placeholder">
+              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+              <div class="media-placeholder">
+                <span>Krave</span>
+                <small>image / video coming soon</small>
+              </div>
             </div>
-            <p>location-based, swipe-driven restaurant discovery with a FastAPI backend, Postgres + PostGIS catalog, H3 indexing, swipe persistence, and a Google Maps scraping pipeline.</p>
-            <p class="archive-meta">FastAPI / Postgres / PostGIS / H3 / Go / Playwright</p>
+            <div class="project-info">
+              <div class="project-head">
+                <h2>Krave</h2>
+              </div>
+              <p>location-based, swipe-driven restaurant discovery with a FastAPI backend, PostgreSQL/PostGIS, H3 indexing, personalized ranking, and an automated geospatial data-ingestion pipeline.</p>
+              <p class="project-meta">React / FastAPI / PostgreSQL / PostGIS / H3 / Go</p>
+            </div>
           </article>
 
-          <article class="archive-entry">
-            <div class="archive-head">
-              <h2><a class="company-link" href="https://reddify.ca/" target="_blank" rel="noreferrer">reddify.ca</a></h2>
-              <span>content automation</span>
+          <article class="project-card">
+            <div class="project-media" aria-label="reddify.ca project media placeholder">
+              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+              <div class="media-placeholder">
+                <span>reddify.ca</span>
+                <small>image / video coming soon</small>
+              </div>
             </div>
-            <p>short-form content platform powered by automation and ai pipelines, reaching 50+ active subscribers and $10k arr.</p>
-            <p class="archive-meta">Next.js / Python / Stripe / MySQL / NGINX</p>
+            <div class="project-info">
+              <div class="project-head">
+                <h2><a class="animated-link" href="https://reddify.ca/" target="_blank" rel="noreferrer">reddify.ca</a></h2>
+                <div class="project-actions" aria-label="reddify.ca links">
+                  <a class="icon-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer" aria-label="GitHub profile for reddify.ca">gh</a>
+                  <a class="icon-link" href="https://reddify.ca/" target="_blank" rel="noreferrer" aria-label="Open reddify.ca">↗</a>
+                </div>
+              </div>
+              <p>short-form content platform powered by automation and ai pipelines, reaching 50+ active subscribers and $10k arr.</p>
+              <p class="project-meta">Next.js / Python / Stripe / MySQL / NGINX</p>
+            </div>
           </article>
 
-          <article class="archive-entry">
-            <div class="archive-head">
-              <h2>ai video systems</h2>
-              <span>production ml</span>
+          <article class="project-card">
+            <div class="project-media" aria-label="ai video systems project media placeholder">
+              <!-- Replace this placeholder with a project screenshot, animated GIF, or muted playsinline loop video. -->
+              <div class="media-placeholder">
+                <span>ai video systems</span>
+                <small>image / video coming soon</small>
+              </div>
             </div>
-            <p>production ai systems that reached 5m+ weekly views and improved personalization performance by 35%.</p>
-            <p class="archive-meta">AWS EC2 / diffusion models / vision-language models / online learning</p>
+            <div class="project-info">
+              <div class="project-head">
+                <h2>ai video systems</h2>
+              </div>
+              <p>prior production engineering work on ai video infrastructure that reached 5m+ weekly views and improved personalization performance by 35%.</p>
+              <p class="project-meta">AWS EC2 / diffusion models / vision-language models / online learning</p>
+            </div>
           </article>
         </div>
       </section>
@@ -61,15 +88,14 @@
 
     <footer id="contact" class="footer">
       <div class="links">
-        <a href="mailto:wmcvicar@uwaterloo.ca">email</a>
-        <a href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
-        <a href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
+        <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+        <a class="animated-link" href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
+        <a class="animated-link" href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
       </div>
       <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
     </footer>
   </div>
 
   <script src="../script.js"></script>
-  <script defer src="/_vercel/analytics/script.js"></script>
 </body>
 </html>
