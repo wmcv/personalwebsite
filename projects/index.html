@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects | William McVicar</title>
+  <meta name="description" content="Selected software and AI projects by William McVicar.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="site-title" href="/">william mcvicar</a>
+      <nav>
+        <a href="/">about</a>
+        <a class="is-active" href="/projects">projects</a>
+        <a href="/blog">blog</a>
+        <a href="#contact">contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="content archive-content">
+        <h1 class="page-heading">projects</h1>
+        <p class="page-subtitle">small systems, product experiments, and ai infrastructure i've been building.</p>
+
+        <div class="archive-list">
+          <article class="archive-entry">
+            <div class="archive-head">
+              <h2>Krave</h2>
+              <span>restaurant discovery</span>
+            </div>
+            <p>location-based, swipe-driven restaurant discovery with a FastAPI backend, Postgres + PostGIS catalog, H3 indexing, swipe persistence, and a Google Maps scraping pipeline.</p>
+            <p class="archive-meta">FastAPI / Postgres / PostGIS / H3 / Go / Playwright</p>
+          </article>
+
+          <article class="archive-entry">
+            <div class="archive-head">
+              <h2><a class="company-link" href="https://reddify.ca/" target="_blank" rel="noreferrer">reddify.ca</a></h2>
+              <span>content automation</span>
+            </div>
+            <p>short-form content platform powered by automation and ai pipelines, reaching 50+ active subscribers and $10k arr.</p>
+            <p class="archive-meta">Next.js / Python / Stripe / MySQL / NGINX</p>
+          </article>
+
+          <article class="archive-entry">
+            <div class="archive-head">
+              <h2>ai video systems</h2>
+              <span>production ml</span>
+            </div>
+            <p>production ai systems that reached 5m+ weekly views and improved personalization performance by 35%.</p>
+            <p class="archive-meta">AWS EC2 / diffusion models / vision-language models / online learning</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact" class="footer">
+      <div class="links">
+        <a href="mailto:wmcvicar@uwaterloo.ca">email</a>
+        <a href="https://www.linkedin.com/in/william-mcvicar-0531a7324/" target="_blank" rel="noreferrer">linkedin</a>
+        <a href="https://github.com/wmcv" target="_blank" rel="noreferrer">github</a>
+      </div>
+      <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+    </footer>
+  </div>
+
+  <script src="../script.js"></script>
+  <script defer src="/_vercel/analytics/script.js"></script>
+</body>
+</html>

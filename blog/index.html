@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>writing | William McVicar</title>
+  <title>Blog | William McVicar</title>
   <meta name="description" content="Notes from William McVicar on software, systems, and things he's been building.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -15,18 +16,20 @@
     <header class="topbar">
       <a class="site-title" href="/">william mcvicar</a>
       <nav>
-        <a href="/blog">blog</a>
-        <a href="mailto:wmcvicar@uwaterloo.ca">contact</a>
+        <a href="/">about</a>
+        <a href="/projects">projects</a>
+        <a class="is-active" href="/blog">blog</a>
+        <a href="#contact">contact</a>
       </nav>
     </header>
 
     <main>
       <section class="content blog-content">
-        <h1 class="page-heading">writing</h1>
+        <h1 class="page-heading">blog</h1>
         <p class="page-subtitle">notes on software, systems, and things i've been building.</p>
 
         <div class="post-list">
-          <article class="post-entry is-disabled" aria-disabled="true">
+          <article class="post-entry is-disabled" data-slug="/blog/how-h3-spatial-indexing-works" aria-disabled="true">
             <p class="post-date">coming soon</p>
             <h2>how h3 spatial indexing works</h2>
             <p>a practical explanation of hierarchical hexagonal indexing and how i use it for location-based restaurant discovery.</p>
