@@ -462,6 +462,7 @@ a:focus-visible {
   color: var(--text);
   font-size: var(--font-sm);
   line-height: 1.55;
+  text-wrap: pretty;
 }
 
 .book-notes li::marker {
