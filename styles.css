@@ -444,8 +444,7 @@ a:focus-visible {
   line-height: 1.35;
 }
 
-.book-author,
-.book-note {
+.book-author {
   margin: 6px 0 0;
   font-size: var(--font-sm);
   line-height: 1.55;
@@ -455,8 +454,18 @@ a:focus-visible {
   color: var(--text-soft);
 }
 
-.book-note {
+.book-notes {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 0;
+  padding-left: 17px;
   color: var(--text);
+  font-size: var(--font-sm);
+  line-height: 1.55;
+}
+
+.book-notes li::marker {
+  color: var(--text-soft);
 }
 
 .project-card-list {
