@@ -397,6 +397,10 @@ a:focus-visible {
 }
 
 .book-entry {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
   padding: 24px 0;
   border-top: 1px solid var(--border);
 }
@@ -408,6 +412,17 @@ a:focus-visible {
 
 .book-entry:last-child {
   border-bottom: 1px solid var(--border);
+}
+
+.book-cover {
+  display: block;
+  width: 84px;
+  height: auto;
+  border-radius: 3px;
+}
+
+.book-content {
+  min-width: 0;
 }
 
 .book-heading {
@@ -806,6 +821,26 @@ th {
     align-items: flex-start;
     flex-direction: column;
     gap: 2px;
+  }
+
+  .book-entry {
+    grid-template-columns: 62px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .book-cover {
+    width: 62px;
+  }
+}
+
+@media (max-width: 360px) {
+  .book-entry {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .book-cover {
+    width: 64px;
   }
 }
 
