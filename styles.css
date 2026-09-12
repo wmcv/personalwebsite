@@ -398,8 +398,8 @@ a:focus-visible {
 
 .book-entry {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 28px;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 18px;
   align-items: start;
   padding: 24px 0;
   border-top: 1px solid var(--border);
@@ -416,7 +416,8 @@ a:focus-visible {
 
 .book-cover {
   display: block;
-  width: 84px;
+  width: 52px !important;
+  max-width: 52px;
   height: auto;
   border-radius: 3px;
 }
@@ -824,12 +825,13 @@ th {
   }
 
   .book-entry {
-    grid-template-columns: 62px minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: 44px minmax(0, 1fr);
+    gap: 14px;
   }
 
   .book-cover {
-    width: 62px;
+    width: 44px !important;
+    max-width: 44px;
   }
 }
 
@@ -840,7 +842,8 @@ th {
   }
 
   .book-cover {
-    width: 64px;
+    width: 52px !important;
+    max-width: 52px;
   }
 }
 
