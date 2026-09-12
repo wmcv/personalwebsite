@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>From TikTok Trend to $15k ARR | William McVicar</title>
+    <meta
+      name="description"
+      content="How Reddify grew from a TikTok trend and personal automation prototype into a short-form video platform reaching roughly $15k ARR."
+    />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../styles.css" />
+
+    <style>
+      .article {
+        width: 100%;
+        max-width: 760px;
+        margin-inline: auto;
+      }
+
+      @media (max-width: 700px) {
+        .article {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page article-page">
+      <header class="topbar">
+        <a class="site-title" href="/">william mcvicar</a>
+
+        <nav aria-label="Primary navigation">
+          <a class="animated-link" href="/">about</a>
+          <a class="animated-link" href="/projects/">projects</a>
+          <a class="animated-link is-active" href="/blog/" aria-current="page">blog</a>
+          <a class="animated-link" href="/books/">books</a>
+        </nav>
+      </header>
+
+      <main class="blog-layout">
+        <aside class="toc" aria-label="Article contents">
+          <h3>Contents</h3>
+          <nav id="table-of-contents"></nav>
+        </aside>
+
+        <article class="content article">
+          <a class="back-link animated-link" href="/blog/">← back to blog</a>
+
+          <header class="article-header">
+            <h1>From TikTok Trend to $15k ARR</h1>
+
+            <p>
+              How Reddify started as a quick automation prototype for a content
+              trend and turned into a product with real revenue.
+            </p>
+
+            <div class="article-meta">
+              <time datetime="2026-09-12">September 12, 2026</time>
+              <span>startup</span>
+            </div>
+          </header>
+
+          <p>Reddify started with me scrolling TikTok.</p>
+
+          <p>
+            At the time, Reddit story videos were everywhere. They had
+            text-to-speech narration over Minecraft parkour, Subway Surfers, GTA
+            clips, or other gameplay designed to keep people watching. What I
+            first noticed was how repetitive the creation process was. It was as
+            simple as taking a reddit post and background gameplay, then merging
+            them.
+          </p>
+
+          <p>
+            Creators at the time were manually finding stories, generating
+            narration, collecting gameplay footage, adding captions, editing
+            everything together, and exporting the final video. A single video
+            could easily take around 20 minutes to make.
+          </p>
+
+          <p>So I built a prototype to automate it.</p>
+
+          <section>
+            <h2>Building for myself first</h2>
+
+            <p>
+              The first version of Reddify wasn't a SaaS. It was a tool I built
+              for myself.
+            </p>
+
+            <p>
+              I created a pipeline that could take the pieces and turn them into
+              a finished short-form video automatically. Then I started posting
+              the Reddit story videos to my own social accounts.
+            </p>
+
+            <p>The videos began getting views and engagement.</p>
+
+            <p>
+              That was the first moment where I understood what it could become.
+              Instead of starting with an idea and trying to convince people
+              they needed it, I had built something for a workflow that already
+              existed and watched it work in the exact environment it was
+              designed for.
+            </p>
+
+            <p>
+              So my conclusion was that if I could use this to produce videos
+              faster, there were plenty of creators doing the same thing
+              manually.
+            </p>
+          </section>
+
+          <section>
+            <h2>Turning a prototype into a product</h2>
+
+            <p>
+              I brought in my two brothers, both software engineers, to help
+              turn the prototype into something other people could actually use.
+            </p>
+
+            <p>
+              One took on more of the frontend and UI/UX work, while the other
+              helped with infrastructure and scaling. I owned the backend and
+              the core video-generation pipeline, which involved taking a
+              request from the frontend, running the processing required to
+              assemble the video, and returning the finished output to the user.
+            </p>
+
+            <p>
+              Video processing also introduced a problem I hadn't dealt with
+              much in smaller side projects: compute cost.
+            </p>
+
+            <p>
+              Rendering and processing video is memory-intensive, and supporting
+              multiple users required significantly more infrastructure than
+              running a prototype locally. We raised a small friends-and-family
+              round to help cover the early AWS costs while we figured out
+              whether there was enough demand to justify scaling the product.
+            </p>
+          </section>
+
+          <section>
+            <h2>Distribution mattered just as much as code</h2>
+
+            <p>
+              Building the platform was only half the problem. We still needed
+              to find people who already had the pain Reddify solved.
+            </p>
+
+            <p>
+              Instead of broadly advertising to anyone interested in content
+              creation, we went directly to communities where Reddit-story
+              creators were already spending time. We promoted Reddify in
+              relevant Discord servers and sponsored TikTok creators who were
+              manually producing the exact type of videos our platform
+              automated.
+            </p>
+
+            <p>
+              For creators, a workflow that could take roughly 20 minutes
+              manually could now take around 30 seconds. That helped Reddify
+              eventually grow past 50 users and reach roughly $15,000 in annual
+              recurring revenue.
+            </p>
+          </section>
+
+          <section>
+            <h2>What I learned</h2>
+
+            <p>
+              The biggest lesson was to pay attention to what people are already
+              doing. Some of the best product opportunities aren't completely
+              new ideas. They're existing workflows that are unnecessarily slow,
+              repetitive, or expensive.
+            </p>
+
+            <p>
+              I also learned that distribution is part of building the product.
+              Writing the backend, improving the pipeline, and scaling the
+              infrastructure mattered, but none of it meant much if we couldn't
+              get Reddify in front of the right users.
+            </p>
+
+            <p>Finally, I learned how important timing can be.</p>
+
+            <p>
+              Reddify started because I noticed a trend, built something for it
+              quickly, tested it myself, and acted on the signal when it worked.
+              Had I spent months planning the perfect version before shipping
+              anything, the opportunity could have looked completely different
+              by the time we launched.
+            </p>
+          </section>
+        </article>
+      </main>
+
+      <footer class="footer">
+        <div class="links">
+          <a class="animated-link" href="mailto:wmcvicar@uwaterloo.ca">email</a>
+
+          <a
+            class="animated-link"
+            href="https://www.linkedin.com/in/william-mcvicar-0531a7324/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            linkedin
+          </a>
+
+          <a
+            class="animated-link"
+            href="https://github.com/wmcv"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            github
+          </a>
+        </div>
+
+        <p class="copyright">&copy; <span id="year"></span> William McVicar</p>
+      </footer>
+    </div>
+
+    <script src="../../script.js"></script>
+  </body>
+</html>
