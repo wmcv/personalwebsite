@@ -96,8 +96,7 @@ nav {
   gap: 24px;
 }
 
-nav a,
-.links a {
+nav a {
   color: var(--text);
   font-size: var(--font-sm);
   text-decoration: none;
@@ -550,21 +549,26 @@ a:focus-visible {
 .icon-link {
   display: inline-grid;
   place-items: center;
-  min-width: 24px;
+  width: 24px;
   height: 24px;
-  padding: 0 5px;
   border: 1px solid var(--border);
   border-radius: 6px;
   color: var(--text);
   font-size: var(--font-xs);
   text-decoration: none;
-  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease);
+  transition: color var(--duration) var(--ease), border-color var(--duration) var(--ease), transform 500ms var(--ease);
 }
 
 .icon-link:hover,
 .icon-link:focus-visible {
   color: var(--text-strong);
   border-color: var(--border-strong);
+  transform: scale(1.08);
+}
+
+.action-icon {
+  width: 14px;
+  height: 14px;
 }
 
 .project-info p {
@@ -764,6 +768,47 @@ th {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text);
+  font-size: var(--font-sm);
+  text-decoration: none;
+  transition: color var(--duration) var(--ease);
+}
+
+.social-link:hover,
+.social-link:focus-visible {
+  color: var(--text-strong);
+}
+
+.social-icon {
+  width: 20px;
+  height: 20px;
+  transition: transform 500ms var(--ease);
+}
+
+.social-link:hover .social-icon,
+.social-link:focus-visible .social-icon {
+  transform: scale(1.1);
+}
+
+.social-label {
+  display: inline-block;
+  max-width: 0;
+  overflow: hidden;
+  opacity: 0;
+  white-space: nowrap;
+  transition: max-width 500ms var(--ease), margin-left 500ms var(--ease), opacity 500ms var(--ease);
+}
+
+.social-link:hover .social-label,
+.social-link:focus-visible .social-label {
+  max-width: 80px;
+  margin-left: 8px;
+  opacity: 1;
 }
 
 .copyright {
