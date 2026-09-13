@@ -65,8 +65,8 @@ const initCommandPalette = () => {
       },
     },
     {
-      label: "Blog",
-      keywords: "writing posts articles",
+      label: "Writing",
+      keywords: "blog writing posts articles",
       run: () => {
         window.location.href = getHref(".topbar nav a[href='/blog/']", "/blog/");
       },
@@ -238,6 +238,18 @@ const initCommandPalette = () => {
     closePalette();
     command.run();
   };
+
+  document.querySelectorAll(".topbar").forEach((topbar) => {
+    if (topbar.querySelector(".command-trigger")) return;
+
+    const trigger = document.createElement("button");
+    trigger.className = "command-trigger";
+    trigger.type = "button";
+    trigger.setAttribute("aria-label", "Open command palette");
+    trigger.innerHTML = `<span aria-hidden="true">K</span>`;
+    trigger.addEventListener("click", openPalette);
+    topbar.appendChild(trigger);
+  });
 
   input.addEventListener("input", filterCommands);
 
