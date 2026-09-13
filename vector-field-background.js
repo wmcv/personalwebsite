@@ -12,7 +12,7 @@
   canvas.setAttribute("aria-hidden", "true");
   document.body.prepend(canvas);
 
-  const config = {
+  const desktopConfig = {
     spacing: 16,
     lineLength: 3.4,
     sigma: 145,
@@ -21,6 +21,16 @@
     decayMs: 420,
     maxDpr: 2,
   };
+  const mobileConfig = {
+    spacing: 20,
+    lineLength: 2.8,
+    sigma: 120,
+    maxInfluence: 0.46,
+    ease: 0.075,
+    decayMs: 360,
+    maxDpr: 1.5,
+  };
+  const coarsePointer = window.matchMedia("(pointer: coarse)");
 
   const mouse = {
     x: 0,
@@ -40,11 +50,15 @@
   let pointsY = new Float32Array(0);
   let currentX = new Float32Array(0);
   let currentY = new Float32Array(0);
+  let baseX = new Float32Array(0);
+  let baseY = new Float32Array(0);
   let animationFrame = 0;
+  let resizeFrame = 0;
   let running = false;
   let reducedMotion = prefersReducedMotion.matches;
   let settleFrames = 0;
   let stroke = "#1f2937";
+  let config = desktopConfig;
 
   const normalize = (x, y) => {
     const length = Math.hypot(x, y) || 1;
@@ -63,12 +77,42 @@
     stroke = styles.getPropertyValue("--dot").trim() || "#1f2937";
   };
 
+  const updateConfig = () => {
+    const mobileViewport = window.innerWidth <= 720 || coarsePointer.matches;
+    config = mobileViewport ? mobileConfig : desktopConfig;
+  };
+
+  const getViewport = () => {
+    const viewport = window.visualViewport;
+
+    return {
+      width: Math.ceil(viewport?.width || window.innerWidth),
+      height: Math.ceil(viewport?.height || window.innerHeight),
+    };
+  };
+
   const resize = () => {
     updateStroke();
+    const previousConfig = config;
+    updateConfig();
 
-    width = window.innerWidth;
-    height = window.innerHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, config.maxDpr);
+    const viewport = getViewport();
+    width = viewport.width;
+    height = viewport.height;
+    const nextDpr = Math.min(window.devicePixelRatio || 1, config.maxDpr);
+
+    if (
+      canvas.width > 0 &&
+      width === canvas.clientWidth &&
+      height === canvas.clientHeight &&
+      nextDpr === dpr &&
+      config === previousConfig
+    ) {
+      draw(true);
+      return;
+    }
+
+    dpr = nextDpr;
 
     canvas.width = Math.ceil(width * dpr);
     canvas.height = Math.ceil(height * dpr);
@@ -85,6 +129,8 @@
     pointsY = new Float32Array(count);
     currentX = new Float32Array(count);
     currentY = new Float32Array(count);
+    baseX = new Float32Array(count);
+    baseY = new Float32Array(count);
 
     let index = 0;
 
@@ -96,6 +142,8 @@
 
         pointsX[index] = x;
         pointsY[index] = y;
+        baseX[index] = vector[0];
+        baseY[index] = vector[1];
         currentX[index] = vector[0];
         currentY[index] = vector[1];
         index += 1;
@@ -128,9 +176,8 @@
     for (let index = 0; index < count; index += 1) {
       const x = pointsX[index];
       const y = pointsY[index];
-      const base = baseVector(x, y);
-      let targetX = base[0];
-      let targetY = base[1];
+      let targetX = baseX[index];
+      let targetY = baseY[index];
 
       if (!reducedMotion && mouse.strength > 0) {
         const dx = x - mouse.x;
@@ -144,8 +191,8 @@
         if (influence > 0.001) {
           const swirl = normalize(-dy, dx);
 
-          targetX = base[0] * (1 - influence) + swirl[0] * influence;
-          targetY = base[1] * (1 - influence) + swirl[1] * influence;
+          targetX = baseX[index] * (1 - influence) + swirl[0] * influence;
+          targetY = baseY[index] * (1 - influence) + swirl[1] * influence;
 
           const normalized = normalize(targetX, targetY);
           targetX = normalized[0];
@@ -210,6 +257,20 @@
     window.cancelAnimationFrame(animationFrame);
   };
 
+  const scheduleResize = () => {
+    window.cancelAnimationFrame(resizeFrame);
+    resizeFrame = window.requestAnimationFrame(resize);
+  };
+
+  const onMediaQueryChange = (query, callback) => {
+    if (query.addEventListener) {
+      query.addEventListener("change", callback);
+      return;
+    }
+
+    query.addListener(callback);
+  };
+
   const handlePointerMove = (event) => {
     if (reducedMotion) return;
 
@@ -224,7 +285,18 @@
 
   window.addEventListener("pointermove", handlePointerMove, { passive: true });
   window.addEventListener("pointerdown", handlePointerMove, { passive: true });
-  window.addEventListener("resize", resize);
+  window.addEventListener("resize", scheduleResize);
+  onMediaQueryChange(coarsePointer, scheduleResize);
+
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", scheduleResize, {
+      passive: true,
+    });
+    window.visualViewport.addEventListener("scroll", scheduleResize, {
+      passive: true,
+    });
+  }
+
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       stop();
@@ -234,7 +306,7 @@
     }
   });
 
-  prefersReducedMotion.addEventListener("change", (event) => {
+  onMediaQueryChange(prefersReducedMotion, (event) => {
     reducedMotion = event.matches;
 
     if (reducedMotion) {

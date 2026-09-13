@@ -53,8 +53,14 @@ body {
   inset: 0;
   z-index: 0;
   width: 100%;
-  height: 100%;
+  height: 100dvh;
   pointer-events: none;
+}
+
+@supports not (height: 100dvh) {
+  .vector-field-background {
+    height: 100vh;
+  }
 }
 
 a {
