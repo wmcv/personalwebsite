@@ -31,6 +31,14 @@
     maxDpr: 1.5,
   };
   const coarsePointer = window.matchMedia("(pointer: coarse)");
+  const hoverPointer = window.matchMedia("(hover: hover)");
+  const hoverSelector = [
+    ".topbar nav a",
+    ".company-link",
+    ".post-title",
+    ".project-head a.animated-link",
+    ".toc-link",
+  ].join(", ");
 
   const mouse = {
     x: 0,
@@ -38,6 +46,14 @@
     strength: 0,
     lastMove: 0,
     hasMoved: false,
+  };
+  const hover = {
+    element: null,
+    x: 0,
+    y: 0,
+    strength: 0,
+    targetStrength: 0,
+    rectDirty: false,
   };
 
   let width = 0;
@@ -81,6 +97,9 @@
     const mobileViewport = window.innerWidth <= 720 || coarsePointer.matches;
     config = mobileViewport ? mobileConfig : desktopConfig;
   };
+
+  const canUseHoverInfluence = () =>
+    hoverPointer.matches && !coarsePointer.matches && !reducedMotion;
 
   const getViewport = () => {
     const viewport = window.visualViewport;
@@ -153,6 +172,43 @@
     draw(true);
   };
 
+  const updateHoverRect = () => {
+    if (!hover.element) return;
+
+    const rect = hover.element.getBoundingClientRect();
+    hover.x = rect.left + rect.width / 2;
+    hover.y = rect.top + rect.height / 2;
+    hover.rectDirty = false;
+  };
+
+  const blendVortex = (
+    originX,
+    originY,
+    strength,
+    maxInfluence,
+    sigma,
+    x,
+    y,
+    targetX,
+    targetY,
+  ) => {
+    const dx = x - originX;
+    const dy = y - originY;
+    const distanceSquared = dx * dx + dy * dy;
+    const falloff = Math.exp(-distanceSquared / (2 * sigma * sigma));
+    const influence = falloff * strength * maxInfluence;
+
+    if (influence <= 0.001) {
+      return [targetX, targetY];
+    }
+
+    const swirl = normalize(-dy, dx);
+    const mixedX = targetX * (1 - influence) + swirl[0] * influence;
+    const mixedY = targetY * (1 - influence) + swirl[1] * influence;
+
+    return normalize(mixedX, mixedY);
+  };
+
   const draw = (staticFrame) => {
     context.clearRect(0, 0, width, height);
     context.strokeStyle = stroke;
@@ -173,6 +229,17 @@
       }
     }
 
+    if (!staticFrame && hover.element) {
+      if (hover.rectDirty) updateHoverRect();
+
+      hover.strength += (hover.targetStrength - hover.strength) * 0.075;
+
+      if (hover.targetStrength === 0 && hover.strength < 0.01) {
+        hover.strength = 0;
+        hover.element = null;
+      }
+    }
+
     for (let index = 0; index < count; index += 1) {
       const x = pointsX[index];
       const y = pointsY[index];
@@ -180,24 +247,35 @@
       let targetY = baseY[index];
 
       if (!reducedMotion && mouse.strength > 0) {
-        const dx = x - mouse.x;
-        const dy = y - mouse.y;
-        const distanceSquared = dx * dx + dy * dy;
-        const falloff = Math.exp(
-          -distanceSquared / (2 * config.sigma * config.sigma),
+        const blended = blendVortex(
+          mouse.x,
+          mouse.y,
+          mouse.strength,
+          config.maxInfluence,
+          config.sigma,
+          x,
+          y,
+          targetX,
+          targetY,
         );
-        const influence = falloff * mouse.strength * config.maxInfluence;
+        targetX = blended[0];
+        targetY = blended[1];
+      }
 
-        if (influence > 0.001) {
-          const swirl = normalize(-dy, dx);
-
-          targetX = baseX[index] * (1 - influence) + swirl[0] * influence;
-          targetY = baseY[index] * (1 - influence) + swirl[1] * influence;
-
-          const normalized = normalize(targetX, targetY);
-          targetX = normalized[0];
-          targetY = normalized[1];
-        }
+      if (!reducedMotion && hover.strength > 0) {
+        const blended = blendVortex(
+          hover.x,
+          hover.y,
+          hover.strength,
+          config.maxInfluence * 0.34,
+          config.sigma * 0.95,
+          x,
+          y,
+          targetX,
+          targetY,
+        );
+        targetX = blended[0];
+        targetY = blended[1];
       }
 
       if (staticFrame || reducedMotion) {
@@ -231,7 +309,7 @@
 
     draw(false);
 
-    if (!mouse.hasMoved && mouse.strength === 0) {
+    if (!mouse.hasMoved && mouse.strength === 0 && hover.strength === 0) {
       settleFrames += 1;
 
       if (settleFrames > 30) {
@@ -258,6 +336,7 @@
   };
 
   const scheduleResize = () => {
+    if (hover.element) hover.rectDirty = true;
     window.cancelAnimationFrame(resizeFrame);
     resizeFrame = window.requestAnimationFrame(resize);
   };
@@ -283,10 +362,82 @@
     start();
   };
 
+  const setHoverElement = (element) => {
+    if (!canUseHoverInfluence()) return;
+
+    hover.element = element;
+    hover.targetStrength = 1;
+    hover.rectDirty = true;
+    settleFrames = 0;
+    updateHoverRect();
+    start();
+  };
+
+  const clearHoverElement = (element, relatedTarget) => {
+    if (hover.element !== element) return;
+    if (relatedTarget instanceof Node && element.contains(relatedTarget)) return;
+
+    hover.targetStrength = 0;
+    hover.rectDirty = false;
+    settleFrames = 0;
+    start();
+  };
+
+  const handlePointerOver = (event) => {
+    if (!canUseHoverInfluence() || event.pointerType === "touch") return;
+
+    const element = event.target.closest?.(hoverSelector);
+    if (!element) return;
+
+    setHoverElement(element);
+  };
+
+  const handlePointerOut = (event) => {
+    if (!hover.element) return;
+
+    const element = event.target.closest?.(hoverSelector);
+    if (!element) return;
+
+    clearHoverElement(element, event.relatedTarget);
+  };
+
+  const handleFocusIn = (event) => {
+    const element = event.target.closest?.(hoverSelector);
+    if (!element) return;
+
+    setHoverElement(element);
+  };
+
+  const handleFocusOut = (event) => {
+    if (!hover.element) return;
+
+    const element = event.target.closest?.(hoverSelector);
+    if (!element) return;
+
+    clearHoverElement(element, event.relatedTarget);
+  };
+
+  const markHoverRectDirty = () => {
+    if (!hover.element) return;
+
+    hover.rectDirty = true;
+    start();
+  };
+
   window.addEventListener("pointermove", handlePointerMove, { passive: true });
   window.addEventListener("pointerdown", handlePointerMove, { passive: true });
+  document.addEventListener("pointerover", handlePointerOver, { passive: true });
+  document.addEventListener("pointerout", handlePointerOut, { passive: true });
+  document.addEventListener("focusin", handleFocusIn);
+  document.addEventListener("focusout", handleFocusOut);
+  window.addEventListener("scroll", markHoverRectDirty, { passive: true });
   window.addEventListener("resize", scheduleResize);
   onMediaQueryChange(coarsePointer, scheduleResize);
+  onMediaQueryChange(hoverPointer, () => {
+    hover.targetStrength = 0;
+    hover.rectDirty = false;
+    start();
+  });
 
   if (window.visualViewport) {
     window.visualViewport.addEventListener("resize", scheduleResize, {
@@ -313,6 +464,9 @@
       stop();
       mouse.strength = 0;
       mouse.hasMoved = false;
+      hover.strength = 0;
+      hover.targetStrength = 0;
+      hover.element = null;
       draw(true);
     } else {
       start();
