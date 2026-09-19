@@ -774,9 +774,17 @@ th {
 }
 
 .footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
   margin-top: 32px;
   padding-top: 14px;
   border-top: 1px solid var(--border);
+}
+
+.footer-details {
+  flex: 0 0 auto;
 }
 
 .links {
@@ -832,6 +840,73 @@ th {
   font-size: var(--font-sm);
 }
 
+.signature {
+  position: relative;
+  flex: 1 1 210px;
+  max-width: 230px;
+  color: var(--text);
+  cursor: default;
+  text-align: right;
+}
+
+.signature:focus-visible {
+  border-radius: 4px;
+  outline: 1px solid var(--text-strong);
+  outline-offset: 5px;
+}
+
+.signature-text {
+  display: inline-block;
+  padding: 0 8px 7px 0;
+  clip-path: inset(0 100% 0 0);
+  font-family: "Allura", "Brush Script MT", cursive;
+  font-size: clamp(2.2rem, 8vw, 3.2rem);
+  line-height: 1;
+  white-space: nowrap;
+  will-change: clip-path;
+}
+
+.signature-pen {
+  position: absolute;
+  right: 100%;
+  bottom: 13px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-strong);
+  box-shadow: 0 0 7px rgba(214, 211, 209, 0.7);
+  opacity: 0;
+}
+
+.signature.is-writing .signature-text {
+  animation: write-signature 2.4s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+.signature.is-writing .signature-pen {
+  animation: guide-signature 2.4s cubic-bezier(0.3, 0, 0.2, 1) forwards;
+}
+
+@keyframes write-signature {
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes guide-signature {
+  0% {
+    right: 100%;
+    opacity: 0;
+  }
+  5%,
+  92% {
+    opacity: 1;
+  }
+  100% {
+    right: 3px;
+    opacity: 0;
+  }
+}
+
 @keyframes sweep {
   0% {
     transform: scaleX(0);
@@ -867,6 +942,19 @@ th {
     flex-direction: column;
   }
 
+  .footer {
+    align-items: flex-start;
+  }
+
+  .signature {
+    flex-basis: 180px;
+    max-width: 200px;
+  }
+
+  .signature-text {
+    font-size: 2.25rem;
+  }
+
   nav {
     justify-content: flex-start;
     gap: 16px;
@@ -896,6 +984,17 @@ th {
 }
 
 @media (max-width: 360px) {
+  .footer {
+    flex-direction: column;
+  }
+
+  .signature {
+    width: 100%;
+    max-width: none;
+    flex-basis: auto;
+    text-align: left;
+  }
+
   .book-entry {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -964,5 +1063,13 @@ th {
 
   .project-card:hover .project-media {
     height: 250px;
+  }
+
+  .signature-text {
+    clip-path: none;
+  }
+
+  .signature-pen {
+    display: none;
   }
 }

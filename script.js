@@ -4,6 +4,33 @@ if (YEAR) {
   YEAR.textContent = new Date().getFullYear();
 }
 
+const SIGNATURE = document.querySelector(".signature");
+
+if (SIGNATURE) {
+  const writeSignature = () => {
+    SIGNATURE.classList.remove("is-writing");
+    void SIGNATURE.offsetWidth;
+    SIGNATURE.classList.add("is-writing");
+  };
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    SIGNATURE.classList.add("is-writing");
+  } else {
+    const signatureObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        writeSignature();
+        signatureObserver.disconnect();
+      },
+      { threshold: 0.65 },
+    );
+
+    signatureObserver.observe(SIGNATURE);
+    SIGNATURE.addEventListener("pointerenter", writeSignature);
+    SIGNATURE.addEventListener("focus", writeSignature);
+  }
+}
+
 
 const addArchitectureXray = () => {
   document.querySelectorAll("[data-architecture]").forEach((link) => {
