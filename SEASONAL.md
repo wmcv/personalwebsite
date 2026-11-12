@@ -58,15 +58,15 @@ removed. Neither the tower nor the tree has an exposed bottom edge.
 ## Ground and layers
 
 Snow begins as a stable substantial field: configured depth 290px on desktop,
-110px within the mobile world. Depth is capped relative to viewport height for
-small screens. Only a subtle 6px maximum drift can gather over time; the former
+110px within the mobile world. Desktop depth is capped relative to viewport height; mobile depth is capped
+against the stable 360px world height, independent of browser toolbar changes. Only a subtle 6px maximum drift can gather over time; the former
 90-second burial demonstration is removed.
 
 Layer order:
 
 1. Original vector field at z-index 0.
 2. Tower and tree within `winter-world` at z-index 0.
-3. Falling snow and ground mist at z-index 1.
+3. Global falling snow at z-index 1; desktop ground mist shares that layer.
 4. Continuous opaque snow foreground and snowman at z-index 2.
 5. Original portfolio content at z-index 3.
 
@@ -75,9 +75,12 @@ preserve contrast. There is no destination-out cutout, rounded content card or
 mask halo. A few low-opacity foreground flakes add depth over the snowman and
 field. Canvases and the world container all have pointer-events:none.
 
-Two tiny geometric icicles beneath the existing name add a restrained accent.
-They are absolutely positioned, do not affect text metrics, and disappear with
-the seasonal class. The font family, size and weight remain unchanged.
+Six irregular SVG icicles attach to selected letters in the existing name.
+DOM Range measurements locate each glyph and a zero-size inline marker measures
+the real baseline. Short translucent facets and tiny broken-edge highlights
+provide frost without text shadows, blue halos or font changes. The overlay is
+absolute, aria-hidden, pointer-transparent, and excluded from text content.
+ResizeObserver and font-load events remeasure it; no animation loop is added. The font family, size and weight remain unchanged.
 
 ## Configuration
 
@@ -175,3 +178,40 @@ match between theme-on/off modes, updated employers remain visible in both,
 master-switch teardown passes, and no overflow/runtime errors were found. The
 extra previous-experience entry naturally adds one row; no CSS layout or type
 metrics were changed.
+
+## Icy header tuning and verification
+
+`createIcyTypography()` in `seasonal.js` contains the six selected letter indices,
+attachment fractions and lengths (about 5-12px, scaled to the existing font size).
+All details are SVG shapes, not text. `seasonal.css` replaces the earlier fixed
+triangle pseudo-element with `.header-ice`. Cleanup disconnects the resize
+observer, cancels pending redraws, and removes every SVG. The master flag exits
+before any ice setup, restoring the exact original type styling.
+
+Normal-scale header close-ups reviewed at desktop/mobile sizes. At 320, 390,
+768, 1440 and 1728px, all measured layout rectangles and the name's font family,
+size, weight, color, letter spacing and line height matched after cleanup.
+Underlying name text remains `william mcvicar`; all icicles are aria-hidden and
+clicks reach the original anchor. The master-disabled flag leaves no SVG.
+Employment content and all winter scenery/weather functions remain unchanged.
+
+## Mobile scroll coherence and stronger ice
+
+At widths up to 900px, the foreground canvas is an absolutely positioned child
+of `winter-world`, alongside the tower/grove and main-tree canvases. Snowbank,
+snowman, near-field flakes and ground mist draw in world-local coordinates.
+Scrolling moves the complete scene through normal document flow, rather than
+repainting a fixed ground layer from viewport scroll measurements. Desktop keeps
+its existing fixed foreground; resize reparents and resizes the canvas when
+crossing the breakpoint. Global airborne snowfall stays viewport-fixed.
+
+Six faceted icicles now range from 5 to 11.8px at the reference font size, with
+slightly wider roots, brighter translucent ice and crisp attachment highlights.
+Glyph ranges and the actual baseline still determine placement. No changes to
+font metrics, underlying text, environment artwork or weather timings.
+
+Chrome mobile emulation checks at 320, 390 and 768px repeatedly scroll near the
+bottom, dispatch touch drags, resize viewport height and enable reduced motion.
+Relative scene offsets remain locked and there is no horizontal overflow.
+Normal-scale desktop/mobile screenshots and five-width typography/cleanup
+checks supplement these tests; a physical iPhone has not been tested.

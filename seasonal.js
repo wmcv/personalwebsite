@@ -47,6 +47,7 @@ const CHRISTMAS_THEME_ENABLED = true;
   const foregroundCtx = foreground.getContext('2d');
   if (config.snow && foregroundCtx) document.body.appendChild(foreground);
   let geometryDirty = true;
+  let foregroundLocal = false;
   let treeBounds = null, contentBounds = null, worldBounds = null;
   let snowOrigin = 0, baseSnowDepth = 0, worldDepth = 0;
   let driftObjects = [], snowContour = new Float32Array(0);
@@ -54,6 +55,7 @@ const CHRISTMAS_THEME_ENABLED = true;
   let treeVisible = true, disposed = false;
   const abort = new AbortController();
   const events = { signal: abort.signal };
+  const icyTypography = createIcyTypography();
   let seed = 2731;
   const random = () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
@@ -187,9 +189,17 @@ const CHRISTMAS_THEME_ENABLED = true;
     width = innerWidth; height = innerHeight;
     const dpr = Math.min(devicePixelRatio || 1, compact.matches ? 1.5 : 2);
     if (snowCtx) sizeCanvas(snow, snowCtx, width, height, dpr);
-    if (foregroundCtx) sizeCanvas(foreground, foregroundCtx, width, height, dpr);
     const mobile = innerWidth <= 900;
-    baseSnowDepth = Math.min(config.defaultSnowDepth[mobile ? 'mobile' : 'desktop'], height * (mobile ? 0.2 : 0.38));
+    foregroundLocal = Boolean(mobile && world.isConnected);
+    if (foregroundCtx && config.snow) {
+      const parent = foregroundLocal ? world : document.body;
+      if (foreground.parentNode !== parent) parent.appendChild(foreground);
+      sizeCanvas(foreground, foregroundCtx, width, foregroundLocal ? world.clientHeight : height, dpr);
+    }
+    // Browser toolbar height changes must not shift the mobile world's ground.
+    const referenceHeight = foregroundLocal ? world.clientHeight : height;
+    baseSnowDepth = Math.min(config.defaultSnowDepth[mobile ? 'mobile' : 'desktop'],
+      referenceHeight * (foregroundLocal ? 0.38 : mobile ? 0.2 : 0.38));
     document.documentElement.style.setProperty('--winter-ground-depth', `${baseSnowDepth}px`);
     // Bottom offset places the rendered branch base 12% below the ground.
     const treeWidth = tree.isConnected ? tree.getBoundingClientRect().width : 0;
@@ -249,31 +259,46 @@ const CHRISTMAS_THEME_ENABLED = true;
     return weather.snowDepth + a + (b - a) * fraction;
   }
   function surfaceAt(x) { return snowOrigin - snowbankHeight(x); }
+  // Environment drawing is local to the shared mobile parent, independent of
+  // viewport scroll measurements. Only global falling snow uses surfaceAt().
+  function foregroundSurfaceAt(x) {
+    return foregroundLocal ? worldDepth - snowbankHeight(x) : surfaceAt(x);
+  }
+  function renderGroundMist(ctx, surface) {
+    if (!mistCtx || motion.matches) return;
+    ctx.globalAlpha = config.fogIntensity * weather.fog * (0.55 + Math.sin(elapsed * 0.09) * 0.25);
+    const drift = Math.sin(elapsed * 0.035) * width * 0.18;
+    ctx.drawImage(mist, -width * 0.25 + drift, surface(width * 0.25) - 80, width * 0.95, 110);
+    ctx.drawImage(mist, width * 0.35 - drift, surface(width * 0.75) - 65, width * 0.85, 95);
+    ctx.globalAlpha = 1;
+  }
   function renderAccumulation() {
     if (!foregroundCtx || !config.snow) return;
     const ctx = foregroundCtx;
-    ctx.clearRect(0, 0, width, height);
-    const surface = surfaceAt(width / 2);
-    if (surface > height + 8) return;
+    const sceneHeight = foregroundLocal ? worldDepth : height;
+    ctx.clearRect(0, 0, width, sceneHeight);
+    const surface = foregroundSurfaceAt(width / 2);
+    if (surface > sceneHeight + 8) return;
     // Opaque interior is painted after all decorative canvases; only the lip is soft.
-    const bank = ctx.createLinearGradient(0, surface - 4, 0, Math.max(surface + 70, height));
+    const bank = ctx.createLinearGradient(0, surface - 4, 0, Math.max(surface + 70, sceneHeight));
     bank.addColorStop(0, '#3b4b56'); bank.addColorStop(0.06, '#2b3a45');
     bank.addColorStop(0.35, '#24333e'); bank.addColorStop(1, '#202d37');
     ctx.fillStyle = bank;
     for (let layer = 3; layer >= 0; layer--) {
       ctx.globalAlpha = layer === 0 ? 1 : 0.09;
-      ctx.beginPath(); ctx.moveTo(0, height);
-      for (let x = 0; x <= width + 6; x += 6) ctx.lineTo(x, surfaceAt(x) - layer);
-      ctx.lineTo(width, height); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(0, sceneHeight);
+      for (let x = 0; x <= width + 6; x += 6) ctx.lineTo(x, foregroundSurfaceAt(x) - layer);
+      ctx.lineTo(width, sceneHeight); ctx.closePath(); ctx.fill();
     }
     ctx.globalAlpha = 1;
+    if (foregroundLocal) renderGroundMist(ctx, foregroundSurfaceAt);
     renderSnowman(ctx);
     // A handful of near-field flakes drift in front of the landscape as well.
     if (!motion.matches) {
       ctx.fillStyle = '#dce7e9'; ctx.globalAlpha = 0.16;
       for (let i = 0; i < (innerWidth <= 900 ? 4 : 10); i++) {
         const x = ((i * 173 + elapsed * weather.wind * 0.25) % (width + 20)) - 10;
-        const y = surfaceAt(x) + 12 + ((i * 43 + elapsed * 13) % Math.max(20, weather.snowDepth - 25));
+        const y = foregroundSurfaceAt(x) + 12 + ((i * 43 + elapsed * 13) % Math.max(20, weather.snowDepth - 25));
         ctx.fillRect(x, y, 0.9, 0.9);
       }
       ctx.globalAlpha = 1;
@@ -444,11 +469,11 @@ const CHRISTMAS_THEME_ENABLED = true;
     if (!homepage || !worldBounds) return;
     const mobile = innerWidth <= 900;
     const x = width * config.snowmanPosition[mobile ? 'mobile' : 'desktop'];
-    let ground = surfaceAt(x) + (mobile ? 19 : 23);
+    let ground = foregroundSurfaceAt(x) + (mobile ? 19 : 23);
     if (!mobile && contentBounds && x > contentBounds.left - 20 && x < contentBounds.right + 20) {
       ground = Math.max(ground, contentBounds.bottom + 34);
     }
-    if (ground > height - 12 || ground < -36) return;
+    if (ground > (foregroundLocal ? worldDepth : height) - 12 || ground < -36) return;
     const scale = (mobile ? 0.95 : 1.05) * config.snowmanScale;
     ctx.save(); ctx.translate(x, ground); ctx.scale(scale, scale);
     // A small contact shadow and clipped lower edge seat both snowballs in snow.
@@ -500,13 +525,7 @@ const CHRISTMAS_THEME_ENABLED = true;
         ctx.beginPath(); ctx.arc(flake.x, flake.y, flake.r, 0, Math.PI * 2); ctx.fill();
       }
     }
-    // Cached low-resolution mist sprite, stretched softly along the ground.
-    if (mistCtx) {
-      ctx.globalAlpha = config.fogIntensity * weather.fog * (0.55 + Math.sin(elapsed * 0.09) * 0.25);
-      const drift = Math.sin(elapsed * 0.035) * width * 0.18;
-      ctx.drawImage(mist, -width * 0.25 + drift, surfaceAt(width * 0.25) - 80, width * 0.95, 110);
-      ctx.drawImage(mist, width * 0.35 - drift, surfaceAt(width * 0.75) - 65, width * 0.85, 95);
-    }
+    if (!foregroundLocal) renderGroundMist(ctx, surfaceAt);
     ctx.globalAlpha = 1;
     renderAccumulation();
   }
@@ -579,6 +598,100 @@ const CHRISTMAS_THEME_ENABLED = true;
     }
     ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
   }
+  function createIcyTypography() {
+    const namespace = 'http://www.w3.org/2000/svg';
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const overlays = [];
+    let redrawFrame = 0, active = true;
+    if (!context) return { destroy() {} };
+    const letters = [
+      { index: 1, fraction: 0.49, length: 5.3 },
+      { index: 3, fraction: 0.46, length: 7.4 },
+      { index: 5, fraction: 0.80, length: 9.2 },
+      { index: 8, fraction: 0.83, length: 6.4 },
+      { index: 12, fraction: 0.42, length: 11.8 },
+      { index: 14, fraction: 0.22, length: 5.0 },
+    ];
+    const path = (svg, geometry, attributes) => {
+      const element = document.createElementNS(namespace, 'path');
+      element.setAttribute('d', geometry);
+      for (const [key, value] of Object.entries(attributes)) element.setAttribute(key, value);
+      svg.appendChild(element);
+    };
+    const update = () => {
+      redrawFrame = 0;
+      if (!active) return;
+      for (const { link, node, svg } of overlays) {
+        const bounds = link.getBoundingClientRect();
+        const style = getComputedStyle(link);
+        const scale = parseFloat(style.fontSize) / 15.2;
+        context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        // A zero-size inline marker reports the real baseline without changing
+        // the text node or contributing width, height, or accessible content.
+        const marker = document.createElement('span');
+        marker.setAttribute('aria-hidden', 'true');
+        marker.style.cssText = 'display:inline-block;width:0;height:0;padding:0;margin:0;border:0;vertical-align:baseline;';
+        link.appendChild(marker);
+        const baseline = marker.getBoundingClientRect().top - bounds.top;
+        marker.remove();
+        svg.setAttribute('width', bounds.width);
+        svg.setAttribute('height', bounds.height + 16 * scale);
+        svg.setAttribute('viewBox', `0 0 ${bounds.width} ${bounds.height + 16 * scale}`);
+        svg.replaceChildren();
+        for (let i = 0; i < letters.length; i++) {
+          const letter = letters[i];
+          if (letter.index >= node.length) continue;
+          const range = document.createRange();
+          range.setStart(node, letter.index); range.setEnd(node, letter.index + 1);
+          const rect = range.getBoundingClientRect();
+          const x = rect.left - bounds.left + rect.width * letter.fraction;
+          const metrics = context.measureText(node.textContent[letter.index]);
+          const y = baseline + metrics.actualBoundingBoxDescent - 0.45 * scale;
+          const length = letter.length * scale;
+          const root = (i % 2 ? 1.1 : 0.9) * scale;
+          // Unequal roots, a narrow faceted waist, and an off-center tip avoid
+          // the uniform triangular teeth of a repeated CSS pattern.
+          path(svg, `M ${x-root} ${y-0.5*scale}
+            Q ${x-root*0.85} ${y+length*0.28} ${x-root*0.35} ${y+length*0.62}
+            L ${x+0.12*scale} ${y+length}
+            Q ${x+root*0.25} ${y+length*0.53} ${x+root*0.72} ${y+0.6*scale}
+            L ${x+root*0.65} ${y-0.4*scale} Z`,
+            { fill: '#d2e1e8', opacity: i % 2 ? '0.86' : '0.76' });
+          path(svg, `M ${x-root*0.68} ${y} Q ${x-root*0.38} ${y+length*0.36} ${x+0.08*scale} ${y+length*0.82}`,
+            { fill: 'none', stroke: '#f0f6f8', 'stroke-width': 0.45*scale, opacity: '0.85' });
+          // A broken crystalline edge stays on the glyph itself, not its line box.
+          path(svg, `M ${x-root*1.7} ${y-0.55*scale} L ${x-root*0.45} ${y-0.95*scale}
+            L ${x+root*0.2} ${y-0.5*scale} M ${x+root*0.45} ${y-1.6*scale} L ${x+root*0.7} ${y-0.5*scale}`,
+            { fill: 'none', stroke: '#edf5f7', 'stroke-width': 0.55*scale, opacity: '0.82' });
+        }
+      }
+    };
+    const schedule = () => {
+      if (!active) return;
+      cancelAnimationFrame(redrawFrame);
+      redrawFrame = requestAnimationFrame(update);
+    };
+    for (const link of document.querySelectorAll('.topbar .site-title')) {
+      const node = [...link.childNodes].find(child => child.nodeType === Node.TEXT_NODE && child.textContent.trim());
+      if (!node) continue;
+      const svg = document.createElementNS(namespace, 'svg');
+      svg.classList.add('header-ice');
+      svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+      link.appendChild(svg); overlays.push({ link, node, svg });
+    }
+    const observer = new ResizeObserver(schedule);
+    for (const { link } of overlays) observer.observe(link);
+    document.fonts?.ready.then(schedule);
+    document.fonts?.addEventListener('loadingdone', schedule, events);
+    update();
+    return {
+      destroy() {
+        active = false; cancelAnimationFrame(redrawFrame); observer.disconnect();
+        for (const { svg } of overlays) svg.remove();
+      },
+    };
+  }
   function tick(now) {
     frame = 0;
     if (document.hidden || disposed) return;
@@ -621,6 +734,7 @@ const CHRISTMAS_THEME_ENABLED = true;
     },
     destroy() {
       disposed = true; stop(); clearTimeout(resizeTimer); abort.abort(); observer.disconnect();
+      icyTypography.destroy();
       snow.remove(); world.remove(); foreground.remove(); document.documentElement.classList.remove('winter-season');
       document.documentElement.style.removeProperty('--winter-tree-scale');
       document.documentElement.style.removeProperty('--winter-ground-depth');

@@ -9,17 +9,14 @@
 .winter-season .group-label::before { background: #829c87; }
 .winter-season .copyright { color: var(--text); }
 .winter-season .site-title { position: relative; }
-.winter-season .site-title::after {
-  content: '';
+.winter-season .header-ice {
   position: absolute;
-  left: 11px;
-  bottom: -4px;
-  width: 34px;
-  height: 5px;
-  background: #b3c6cf;
-  opacity: .35;
-  clip-path: polygon(0 0, 12% 0, 7% 65%, 0 0, 55% 0, 61% 100%, 66% 0, 100% 0);
+  left: 0;
+  top: 0;
+  display: block;
+  overflow: visible;
   pointer-events: none;
+  user-select: none;
 }
 .winter-world {
   position: fixed;
@@ -63,6 +60,11 @@
     margin-top: 16px;
     margin-bottom: max(16px, env(safe-area-inset-bottom));
     overflow: hidden;
+  }
+  .winter-world .winter-accumulation {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
   }
   .winter-tree {
     right: max(8px, env(safe-area-inset-right));
