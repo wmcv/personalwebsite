@@ -1,0 +1,77 @@
+/* One class scopes every seasonal style; disabled mode uses the original CSS. */
+.winter-season {
+  --winter-tree-width: 390px;
+  --accent: #b6a16e;
+}
+.winter-season .vector-field-background { opacity: .65; }
+.winter-season .animated-link::before { background: #b6a16e; }
+.winter-season .single-line::before,
+.winter-season .group-label::before { background: #829c87; }
+.winter-season .copyright { color: var(--text); }
+.winter-season .site-title { position: relative; }
+.winter-season .site-title::after {
+  content: '';
+  position: absolute;
+  left: 11px;
+  bottom: -4px;
+  width: 34px;
+  height: 5px;
+  background: #b3c6cf;
+  opacity: .35;
+  clip-path: polygon(0 0, 12% 0, 7% 65%, 0 0, 55% 0, 61% 100%, 66% 0, 100% 0);
+  pointer-events: none;
+}
+.winter-world {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.winter-structures {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.winter-tree {
+  position: absolute;
+  right: max(24px, env(safe-area-inset-right));
+  bottom: var(--winter-ground-depth, 290px);
+  width: min(calc(var(--winter-tree-width) * var(--winter-tree-scale, 1)), calc((100vw - 548px) / 2 - 48px));
+  height: auto;
+  aspect-ratio: 360 / 480;
+  pointer-events: none;
+}
+.winter-snow,
+.winter-accumulation {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.winter-snow { z-index: 1; }
+.winter-accumulation { z-index: 2; }
+.winter-season .page { z-index: 3; }
+@media (max-width: 900px) {
+  .winter-world {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    height: 360px;
+    margin-top: 16px;
+    margin-bottom: max(16px, env(safe-area-inset-bottom));
+    overflow: hidden;
+  }
+  .winter-tree {
+    right: max(8px, env(safe-area-inset-right));
+    width: min(calc(56vw * var(--winter-tree-scale, 1)), 220px);
+  }
+}
+@media (max-width: 480px) {
+  .winter-snow { opacity: .65; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .winter-snow { display: none; }
+}
